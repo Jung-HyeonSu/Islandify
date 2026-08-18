@@ -45,24 +45,36 @@ final class LiveActivityManager {
 
         let attributes = IslandifyActivityAttributes(kind: presentation.kind)
         let state = IslandifyActivityAttributes.ContentState(presentation: presentation)
-        let content = ActivityContent(state: state, staleDate: presentation.staleDate)
-        currentActivity = try Activity.request(attributes: attributes, content: content, pushType: nil)
+        if #available(iOS 16.2, *) {
+            let content = ActivityContent(state: state, staleDate: presentation.staleDate)
+            currentActivity = try Activity.request(attributes: attributes, content: content, pushType: nil)
+        } else {
+            currentActivity = try Activity.request(attributes: attributes, contentState: state, pushType: nil)
+        }
     }
 
     func update(presentation: ActivityPresentationState) async throws {
         reconcile()
         guard let currentActivity else { throw LiveActivityError.noActiveActivity }
         let state = IslandifyActivityAttributes.ContentState(presentation: presentation)
-        let content = ActivityContent(state: state, staleDate: presentation.staleDate)
-        try await currentActivity.update(content)
+        if #available(iOS 16.2, *) {
+            let content = ActivityContent(state: state, staleDate: presentation.staleDate)
+            await currentActivity.update(content)
+        } else {
+            await currentActivity.update(using: state)
+        }
     }
 
     func end(presentation: ActivityPresentationState) async {
         reconcile()
         guard let currentActivity else { return }
         let state = IslandifyActivityAttributes.ContentState(presentation: presentation)
-        let content = ActivityContent(state: state, staleDate: Date())
-        await currentActivity.end(content, dismissalPolicy: .default)
+        if #available(iOS 16.2, *) {
+            let content = ActivityContent(state: state, staleDate: Date())
+            await currentActivity.end(content, dismissalPolicy: .default)
+        } else {
+            await currentActivity.end(using: state, dismissalPolicy: .default)
+        }
         self.currentActivity = nil
     }
 }

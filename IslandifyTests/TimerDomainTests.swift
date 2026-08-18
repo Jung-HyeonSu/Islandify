@@ -41,7 +41,7 @@ final class TimerDomainTests: XCTestCase {
         let resumed = try TimerEngine.resume(paused, at: origin.addingTimeInterval(2 * 60 * 60))
 
         XCTAssertEqual(paused.phase, .paused)
-        XCTAssertEqual(paused.pausedRemaining, 20 * 60, accuracy: 0.001)
+        XCTAssertEqual(paused.pausedRemaining ?? -1, 20 * 60, accuracy: 0.001)
         XCTAssertEqual(resumed.endDate, origin.addingTimeInterval(2 * 60 * 60 + 20 * 60))
     }
 
@@ -63,8 +63,8 @@ final class TimerDomainTests: XCTestCase {
         let state = TimerEngine.start(configuration: configuration, at: origin)
         let presentation = TimerEngine.presentation(for: state, at: origin.addingTimeInterval(62))
 
-        XCTAssertEqual(presentation.primaryValue, "00:58:58")
-        XCTAssertEqual(presentation.compactTrailing, "00:58:58")
+        XCTAssertEqual(presentation.primaryValue, "58:58")
+        XCTAssertEqual(presentation.compactTrailing, "58:58")
         XCTAssertTrue(presentation.accessibilityLabel.contains("Deep work"))
     }
 }

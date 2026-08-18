@@ -55,13 +55,13 @@ final class RunningDomainTests: XCTestCase {
         state = RunningCalculator.finish(state, at: origin.addingTimeInterval(30 * 60))
         let record = RunningCalculator.record(for: state, at: origin.addingTimeInterval(30 * 60), memo: "Easy run")
 
-        XCTAssertEqual(record?.duration, 30 * 60, accuracy: 0.001)
+        XCTAssertEqual(record?.duration ?? -1, 30 * 60, accuracy: 0.001)
         XCTAssertEqual(record?.memo, "Easy run")
         XCTAssertGreaterThan(record?.calories ?? 0, 0)
     }
 
     func testPaceAndFormattingUseMinutesPerKilometer() {
-        XCTAssertEqual(RunningCalculator.pace(seconds: 600, distanceMeters: 2_000), 300, accuracy: 0.001)
+        XCTAssertEqual(RunningCalculator.pace(seconds: 600, distanceMeters: 2_000) ?? -1, 300, accuracy: 0.001)
         XCTAssertEqual(IslandifyTimeFormatter.pace(secondsPerKilometer: 300), "05:00/km")
     }
 }

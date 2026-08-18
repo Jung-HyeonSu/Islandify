@@ -69,7 +69,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 1;
+			dstSubfolderSpec = 13;
 			files = (
 				600000000000000000000008 /* IslandifyWidget.appex in Embed Foundation Extensions */,
 			);
@@ -407,15 +407,19 @@
 			ALWAYS_SEARCH_USER_PATHS = NO;
 			CLANG_ENABLE_MODULES = YES;
 			CLANG_ENABLE_OBJC_ARC = YES;
+			SDKROOT = iphoneos;
 			SWIFT_VERSION = 5.0;
 			TARGETED_DEVICE_FAMILY = "1,2";
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 		}; name = Debug; };
 		201000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
 			ALWAYS_SEARCH_USER_PATHS = NO;
 			CLANG_ENABLE_MODULES = YES;
 			CLANG_ENABLE_OBJC_ARC = YES;
+			SDKROOT = iphoneos;
 			SWIFT_VERSION = 5.0;
 			TARGETED_DEVICE_FAMILY = "1,2";
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 		}; name = Release; };
 		410000000000000000000001 /* Debug Islandify */ = {isa = XCBuildConfiguration; buildSettings = {
 			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -425,11 +429,15 @@
 			CODE_SIGN_ENTITLEMENTS = Islandify/Resources/Islandify.entitlements;
 			CURRENT_PROJECT_VERSION = 1;
 			DEVELOPMENT_TEAM = "";
+			ENABLE_TESTABILITY = YES;
 			INFOPLIST_FILE = Islandify/Resources/Info.plist;
 			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
 			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app;
 			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = iphoneos;
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
 			SWIFT_EMIT_LOC_STRINGS = YES;
 			SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 		}; name = Debug; };
@@ -446,6 +454,9 @@
 			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
 			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app;
 			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = iphoneos;
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
 			SWIFT_EMIT_LOC_STRINGS = YES;
 			SWIFT_OPTIMIZATION_LEVEL = "-O";
 		}; name = Release; };
@@ -460,7 +471,10 @@
 			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.widget;
 			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = iphoneos;
 			SKIP_INSTALL = YES;
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
 			SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 		}; name = Debug; };
 		411000000000000000000002 /* Release Widget */ = {isa = XCBuildConfiguration; buildSettings = {
@@ -474,7 +488,10 @@
 			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.widget;
 			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = iphoneos;
 			SKIP_INSTALL = YES;
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
 			SWIFT_OPTIMIZATION_LEVEL = "-O";
 		}; name = Release; };
 		412000000000000000000001 /* Debug Tests */ = {isa = XCBuildConfiguration; buildSettings = {
@@ -488,6 +505,9 @@
 			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.tests;
 			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = iphoneos;
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
 			SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Islandify.app/Islandify";
 			TEST_TARGET_NAME = Islandify;
@@ -503,6 +523,9 @@
 			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.tests;
 			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = iphoneos;
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
 			SWIFT_OPTIMIZATION_LEVEL = "-O";
 			TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Islandify.app/Islandify";
 			TEST_TARGET_NAME = Islandify;

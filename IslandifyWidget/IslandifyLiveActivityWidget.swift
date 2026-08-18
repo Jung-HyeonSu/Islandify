@@ -9,7 +9,7 @@ struct IslandifyLiveActivityWidget: Widget {
             IslandifyLockScreenView(state: context.state.presentation)
         } dynamicIsland: { context in
             let state = context.state.presentation
-            DynamicIsland {
+            return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     IslandifyIconView(icon: state.icon)
                 }
@@ -44,12 +44,12 @@ struct IslandifyLiveActivityWidget: Widget {
                     }
                 }
             } compactLeading: {
-                IslandifyCompactText(state.compactLeading, icon: state.icon)
+                IslandifyCompactText(value: state.compactLeading, icon: state.icon)
             } compactTrailing: {
                 IslandifyDynamicValue(state: state)
                     .font(.caption2.monospacedDigit().weight(.semibold))
             } minimal: {
-                IslandifyCompactText(state.compactTrailing, icon: state.icon)
+                IslandifyCompactText(value: state.compactTrailing, icon: state.icon)
             }
             .widgetURL(URL(string: "islandify://activity/\(context.attributes.activityID.uuidString)"))
             .keylineTint(Color(hex: state.palette.accentHex))

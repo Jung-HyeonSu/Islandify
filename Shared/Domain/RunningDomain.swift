@@ -49,6 +49,7 @@ public struct LocationSample: Codable, Hashable, Sendable {
     }
 }
 
+@MainActor
 public protocol LocationSampleProvider: AnyObject {
     func start(sink: @escaping (LocationSample) -> Void) -> LocationAuthorizationState
     func stop()

@@ -96,7 +96,7 @@ final class TravelDomainTests: XCTestCase {
         )
 
         XCTAssertEqual(state.kind, .dDay)
-        XCTAssertEqual(state.remainingUntilDeparture, 9_150, accuracy: 0.001)
+        XCTAssertEqual(state.remainingUntilDeparture ?? -1, 9_150, accuracy: 0.001)
         XCTAssertEqual(state.hoursRemaining, 2)
         XCTAssertEqual(state.minutesRemaining, 32)
         XCTAssertEqual(state.countdownText, "02:32")

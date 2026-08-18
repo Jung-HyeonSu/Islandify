@@ -41,24 +41,37 @@ final class LocationService: NSObject, CLLocationManagerDelegate, LocationSample
         sink = nil
     }
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Task { @MainActor [weak self] in
+            self?.handleAuthorizationChange()
+        }
+    }
+
+    private func handleAuthorizationChange() {
         guard authorizationState.canCollectLocation else { return }
         manager.startUpdatingLocation()
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        for location in locations where location.horizontalAccuracy >= 0 {
-            sink?(LocationSample(
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let samples = locations.compactMap { location -> LocationSample? in
+            guard location.horizontalAccuracy >= 0 else { return nil }
+            return LocationSample(
                 timestamp: location.timestamp,
                 latitude: location.coordinate.latitude,
                 longitude: location.coordinate.longitude,
                 horizontalAccuracy: location.horizontalAccuracy,
                 speedMetersPerSecond: location.speed
-            ))
+            )
+        }
+
+        Task { @MainActor [weak self] in
+            for sample in samples {
+                self?.sink?(sample)
+            }
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         // The running session remains usable as a time-only run. The app presents
         // the permission/error message through its model instead of dropping data.
     }
