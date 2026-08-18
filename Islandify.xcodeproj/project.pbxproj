@@ -25,6 +25,10 @@
 		600000000000000000000016 /* IslandifyActivityAttributes.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000006 /* IslandifyActivityAttributes.swift */; };
 		600000000000000000000017 /* IslandifyLiveActivityWidget.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */; };
 		600000000000000000000018 /* PresentationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000002 /* PresentationTests.swift */; };
+		600000000000000000000019 /* TimerDomain.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000007 /* TimerDomain.swift */; };
+		600000000000000000000020 /* LiveActivityManager.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000004 /* LiveActivityManager.swift */; };
+		600000000000000000000021 /* TimerFeatureView.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000005 /* TimerFeatureView.swift */; };
+		600000000000000000000022 /* TimerDomainTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000003 /* TimerDomainTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +66,8 @@
 		A00000000000000000000001 /* IslandifyAppModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyAppModel.swift; sourceTree = "<group>"; };
 		A00000000000000000000002 /* IslandifyApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyApp.swift; sourceTree = "<group>"; };
 		A00000000000000000000003 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A00000000000000000000004 /* LiveActivityManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		A00000000000000000000005 /* TimerFeatureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerFeatureView.swift; sourceTree = "<group>"; };
 		B00000000000000000000001 /* IslandifyWidgetBundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyWidgetBundle.swift; sourceTree = "<group>"; };
 		B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyLiveActivityWidget.swift; sourceTree = "<group>"; };
 		C00000000000000000000001 /* LocalStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
@@ -70,8 +76,10 @@
 		C00000000000000000000004 /* DateMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateMath.swift; sourceTree = "<group>"; };
 		C00000000000000000000005 /* TimeFormatting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
 		C00000000000000000000006 /* IslandifyActivityAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyActivityAttributes.swift; sourceTree = "<group>"; };
+		C00000000000000000000007 /* TimerDomain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerDomain.swift; sourceTree = "<group>"; };
 		D00000000000000000000001 /* LocalStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStoreTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000002 /* PresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentationTests.swift; sourceTree = "<group>"; };
+		D00000000000000000000003 /* TimerDomainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerDomainTests.swift; sourceTree = "<group>"; };
 		E00000000000000000000001 /* IslandifyWidget.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = IslandifyWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00000000000000000000002 /* Islandify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Islandify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00000000000000000000003 /* IslandifyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IslandifyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				100000000000000000000007 /* App */,
+				100000000000000000000011 /* Services */,
 				100000000000000000000008 /* Resources */,
 			);
 			path = Islandify;
@@ -132,6 +141,7 @@
 			children = (
 				D00000000000000000000001 /* LocalStoreTests.swift */,
 				D00000000000000000000002 /* PresentationTests.swift */,
+				D00000000000000000000003 /* TimerDomainTests.swift */,
 				E00000000000000000000007 /* Tests Info.plist */,
 			);
 			path = IslandifyTests;
@@ -153,6 +163,7 @@
 				A00000000000000000000001 /* IslandifyAppModel.swift */,
 				A00000000000000000000002 /* IslandifyApp.swift */,
 				A00000000000000000000003 /* ContentView.swift */,
+				A00000000000000000000005 /* TimerFeatureView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -166,6 +177,14 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		100000000000000000000011 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000004 /* LiveActivityManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		100000000000000000000009 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -174,6 +193,7 @@
 				C00000000000000000000003 /* ActivityPresentation.swift */,
 				C00000000000000000000004 /* DateMath.swift */,
 				C00000000000000000000005 /* TimeFormatting.swift */,
+				C00000000000000000000007 /* TimerDomain.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -292,6 +312,9 @@
 			600000000000000000000010 /* DateMath.swift in Islandify Sources */,
 			600000000000000000000011 /* TimeFormatting.swift in Islandify Sources */,
 			600000000000000000000012 /* IslandifyActivityAttributes.swift in Islandify Sources */,
+			600000000000000000000019 /* TimerDomain.swift in Islandify Sources */,
+			600000000000000000000020 /* LiveActivityManager.swift in Islandify Sources */,
+			600000000000000000000021 /* TimerFeatureView.swift in Islandify Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		500000000000000000000005 /* Widget Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 			600000000000000000000004 /* IslandifyWidgetBundle.swift in Sources */,
@@ -306,6 +329,7 @@
 		500000000000000000000009 /* Test Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 			600000000000000000000007 /* LocalStoreTests.swift in Sources */,
 			600000000000000000000018 /* PresentationTests.swift in Test Sources */,
+			600000000000000000000022 /* TimerDomainTests.swift in Test Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
@@ -334,6 +358,7 @@
 			CODE_SIGNING_ALLOWED = NO;
 			CODE_SIGNING_REQUIRED = NO;
 			CODE_SIGN_IDENTITY = "";
+			CODE_SIGN_ENTITLEMENTS = Islandify/Resources/Islandify.entitlements;
 			CURRENT_PROJECT_VERSION = 1;
 			DEVELOPMENT_TEAM = "";
 			INFOPLIST_FILE = Islandify/Resources/Info.plist;
@@ -349,6 +374,7 @@
 			CODE_SIGNING_ALLOWED = NO;
 			CODE_SIGNING_REQUIRED = NO;
 			CODE_SIGN_IDENTITY = "";
+			CODE_SIGN_ENTITLEMENTS = Islandify/Resources/Islandify.entitlements;
 			CURRENT_PROJECT_VERSION = 1;
 			DEVELOPMENT_TEAM = "";
 			INFOPLIST_FILE = Islandify/Resources/Info.plist;

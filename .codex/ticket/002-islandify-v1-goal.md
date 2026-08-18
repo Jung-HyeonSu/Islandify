@@ -38,11 +38,11 @@ The product is not an unrestricted Dynamic Island drawing tool. It is a small, a
 
 ### M2 — Countdown timer
 
-- [ ] Configure name, duration from 1 minute through 8 hours, icon, color/theme, alert sound choice, progress style, and auto-end preference.
-- [ ] Implement start, pause, resume, reset, end, and add-one-minute behavior.
-- [ ] Derive remaining time and progress from absolute dates; handle app suspension and foreground recovery.
-- [ ] Render a useful compact example such as `🔥 24:58`, a minimal icon/value, expanded title/value/progress/actions, and Lock Screen content.
-- [ ] Add focused tests for duration limits, pause/resume, reset, completion, add-minute, progress, and formatting.
+- [x] Configure name, duration from 1 minute through 8 hours, icon, color/theme, alert sound choice, progress style, and auto-end preference.
+- [x] Implement start, pause, resume, reset, end, and add-one-minute behavior.
+- [x] Derive remaining time and progress from absolute dates; handle app suspension and foreground recovery.
+- [x] Render a useful compact example such as `🔥 24:58`, a minimal icon/value, expanded title/value/progress/actions, and Lock Screen content.
+- [x] Add focused tests for duration limits, pause/resume, reset, completion, add-minute, progress, and formatting.
 
 ### M3 — Travel D-day
 
@@ -98,5 +98,7 @@ The goal is complete only when M0–M7 are implemented or an explicitly document
 - M0 verification: `swiftc -frontend -parse` passed for all Swift sources; `swift test` completed with zero runnable cases because the active Command Line Tools SDK does not provide XCTest; all plist files and `Islandify.xcodeproj/project.pbxproj` passed `plutil -lint`; `git diff --check` passed. `xcodebuild` and simulator execution remain pending because the active developer directory is `/Library/Developer/CommandLineTools` rather than full Xcode.
 - M1 shared primitives: complete. Added `ActivityKind`, lifecycle phases, icon/theme/progress/slot models, six contrast-safe themes, constrained compact/minimal/expanded/Lock Screen render models, pure date/time helpers, and the shared `IslandifyActivityAttributes.ContentState` contract used by app and Widget target memberships.
 - M1 verification: `swift test` built the Foundation domain and conditional Xcode tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all Swift sources; `plutil -lint` passed plist, entitlements, and project files; `git diff --check` passed. ActivityKit/WidgetKit type-checking and runtime surface review remain pending until full Xcode is selected.
-- App implementation: M0 and M1 complete; M2 and later milestones remain in progress.
+- M2 countdown timer: complete. Added validated 1-minute–8-hour configurations, absolute-date timer state/reducer operations, pause/resume/reset/end/+1 minute, completion reconciliation, progress and compact duration formatting, device-local active timer persistence, Live Activity authorization/duplicate handling adapter, and SwiftUI timer configuration/control UI.
+- M2 verification: `swift test` compiled the Foundation timer domain and conditional `TimerDomainTests` (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Full iOS type-check/build, Dynamic Island rendering, background suspension, alert sound playback, and simulator interaction remain pending until full Xcode is selected.
+- App implementation: M0 through M2 complete; M3 and later milestones remain in progress.
 - Environment: full Xcode is not selected; `xcodebuild -version` exits because the active developer directory is Command Line Tools.
