@@ -12,6 +12,8 @@ struct ContentView: View {
                     .tabItem { Label("Travel", systemImage: "airplane.departure") }
                 RelationshipFeatureView()
                     .tabItem { Label("Together", systemImage: "heart.fill") }
+                RunningFeatureView()
+                    .tabItem { Label("Run", systemImage: "figure.run") }
             }
             .navigationTitle("Islandify")
         }

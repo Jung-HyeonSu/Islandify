@@ -20,6 +20,12 @@
 	<true/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Islandify uses your location only while a run is active to estimate distance and pace.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>

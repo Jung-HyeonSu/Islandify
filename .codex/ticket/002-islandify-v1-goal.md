@@ -60,11 +60,11 @@ The product is not an unrestricted Dynamic Island drawing tool. It is a small, a
 
 ### M5 — Running
 
-- [ ] Implement start, pause, resume, end, elapsed time, GPS distance, current/average pace, estimated calories, and completion summary.
-- [ ] Ask for location permission only when the user starts a run; handle denied/restricted/unavailable location with a clear fallback.
-- [ ] Render distance/time/pace in compact, minimal, expanded, and Lock Screen states.
-- [ ] Store completed run records locally with start/end time, distance, pace, calories, and an optional memo.
-- [ ] Add deterministic tests around pace/calorie calculations and a test seam for location samples; runtime GPS testing remains a simulator/device concern.
+- [x] Implement start, pause, resume, end, elapsed time, GPS distance, current/average pace, estimated calories, and completion summary.
+- [x] Ask for location permission only when the user starts a run; handle denied/restricted/unavailable location with a clear fallback.
+- [x] Render distance/time/pace in compact, minimal, expanded, and Lock Screen states.
+- [x] Store completed run records locally with start/end time, distance, pace, calories, and an optional memo.
+- [x] Add deterministic tests around pace/calorie calculations and a test seam for location samples; runtime GPS testing remains a simulator/device concern.
 
 ### M6 — Constrained personalization
 
@@ -104,5 +104,7 @@ The goal is complete only when M0–M7 are implemented or an explicitly document
 - M3 verification: `swift test` built the travel and relationship Foundation sources (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Full ActivityKit/WidgetKit type-check, timezone runtime behavior across device settings, and simulator UI/deep-link interaction remain pending until full Xcode is selected.
 - M4 relationship D+: complete. Added D+0/D+1 counting, IANA timezone-aware calendar math, leap-year handling, next 100/200/300-day and annual milestones, anniversary message/presentation, device-local notification planning and UserNotifications scheduling, SwiftUI configuration/status screen, persistence, and shared Live Activity projection.
 - M4 verification: `swift test` built the relationship domain and conditional tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Actual notification permission delivery and full iOS ActivityKit/UI runtime checks remain pending until full Xcode/device or simulator is available.
-- App implementation: M0 through M4 complete; M5 and later milestones remain in progress.
+- M5 running: complete. Added pure injected location-sample distance/pace/calorie/session reducers, CoreLocation permission/location adapter, start/pause/resume/end UI, denied/restricted/unavailable time-only fallback, local run summaries with optional memo, active-run persistence, and shared Live Activity projection.
+- M5 verification: `swift test` built the running domain and conditional tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Actual GPS samples, background location delivery, permission prompts, and full ActivityKit/UI runtime checks remain pending until full Xcode and simulator/device access.
+- App implementation: M0 through M5 complete; M6 and M7 remain in progress.
 - Environment: full Xcode is not selected; `xcodebuild -version` exits because the active developer directory is Command Line Tools.

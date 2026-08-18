@@ -37,6 +37,10 @@
 		600000000000000000000028 /* LocalNotificationScheduler.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000008 /* LocalNotificationScheduler.swift */; };
 		600000000000000000000029 /* RelationshipDomain.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000010 /* RelationshipDomain.swift */; };
 		600000000000000000000030 /* RelationshipDomainTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000005 /* RelationshipDomainTests.swift */; };
+		600000000000000000000031 /* RunningFeatureView.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000009 /* RunningFeatureView.swift */; };
+		600000000000000000000032 /* LocationService.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000010 /* LocationService.swift */; };
+		600000000000000000000033 /* RunningDomain.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000011 /* RunningDomain.swift */; };
+		600000000000000000000034 /* RunningDomainTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000006 /* RunningDomainTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +83,8 @@
 		A00000000000000000000006 /* TravelFeatureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TravelFeatureView.swift; sourceTree = "<group>"; };
 		A00000000000000000000007 /* RelationshipFeatureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelationshipFeatureView.swift; sourceTree = "<group>"; };
 		A00000000000000000000008 /* LocalNotificationScheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalNotificationScheduler.swift; sourceTree = "<group>"; };
+		A00000000000000000000009 /* RunningFeatureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunningFeatureView.swift; sourceTree = "<group>"; };
+		A00000000000000000000010 /* LocationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		B00000000000000000000001 /* IslandifyWidgetBundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyWidgetBundle.swift; sourceTree = "<group>"; };
 		B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyLiveActivityWidget.swift; sourceTree = "<group>"; };
 		C00000000000000000000001 /* LocalStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
@@ -91,11 +97,13 @@
 		C00000000000000000000008 /* TravelDomain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TravelDomain.swift; sourceTree = "<group>"; };
 		C00000000000000000000009 /* TravelPresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TravelPresentation.swift; sourceTree = "<group>"; };
 		C00000000000000000000010 /* RelationshipDomain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelationshipDomain.swift; sourceTree = "<group>"; };
+		C00000000000000000000011 /* RunningDomain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunningDomain.swift; sourceTree = "<group>"; };
 		D00000000000000000000001 /* LocalStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStoreTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000002 /* PresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentationTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000003 /* TimerDomainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerDomainTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000004 /* TravelDomainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TravelDomainTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000005 /* RelationshipDomainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelationshipDomainTests.swift; sourceTree = "<group>"; };
+		D00000000000000000000006 /* RunningDomainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunningDomainTests.swift; sourceTree = "<group>"; };
 		E00000000000000000000001 /* IslandifyWidget.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = IslandifyWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00000000000000000000002 /* Islandify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Islandify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00000000000000000000003 /* IslandifyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IslandifyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -160,6 +168,7 @@
 				D00000000000000000000003 /* TimerDomainTests.swift */,
 				D00000000000000000000004 /* TravelDomainTests.swift */,
 				D00000000000000000000005 /* RelationshipDomainTests.swift */,
+				D00000000000000000000006 /* RunningDomainTests.swift */,
 				E00000000000000000000007 /* Tests Info.plist */,
 			);
 			path = IslandifyTests;
@@ -184,6 +193,7 @@
 				A00000000000000000000005 /* TimerFeatureView.swift */,
 				A00000000000000000000006 /* TravelFeatureView.swift */,
 				A00000000000000000000007 /* RelationshipFeatureView.swift */,
+				A00000000000000000000009 /* RunningFeatureView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -202,6 +212,7 @@
 			children = (
 				A00000000000000000000004 /* LiveActivityManager.swift */,
 				A00000000000000000000008 /* LocalNotificationScheduler.swift */,
+				A00000000000000000000010 /* LocationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -218,6 +229,7 @@
 				C00000000000000000000008 /* TravelDomain.swift */,
 				C00000000000000000000009 /* TravelPresentation.swift */,
 				C00000000000000000000010 /* RelationshipDomain.swift */,
+				C00000000000000000000011 /* RunningDomain.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -345,6 +357,9 @@
 			600000000000000000000027 /* RelationshipFeatureView.swift in Islandify Sources */,
 			600000000000000000000028 /* LocalNotificationScheduler.swift in Islandify Sources */,
 			600000000000000000000029 /* RelationshipDomain.swift in Islandify Sources */,
+			600000000000000000000031 /* RunningFeatureView.swift in Islandify Sources */,
+			600000000000000000000032 /* LocationService.swift in Islandify Sources */,
+			600000000000000000000033 /* RunningDomain.swift in Islandify Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		500000000000000000000005 /* Widget Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 			600000000000000000000004 /* IslandifyWidgetBundle.swift in Sources */,
@@ -362,6 +377,7 @@
 			600000000000000000000022 /* TimerDomainTests.swift in Test Sources */,
 			600000000000000000000026 /* TravelDomainTests.swift in Test Sources */,
 			600000000000000000000030 /* RelationshipDomainTests.swift in Test Sources */,
+			600000000000000000000034 /* RunningDomainTests.swift in Test Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 

@@ -6,12 +6,16 @@ final class IslandifyAppModel: ObservableObject {
     @Published private(set) var activeTimer: TimerState?
     @Published private(set) var activeTravel: TravelConfiguration?
     @Published private(set) var activeRelationship: RelationshipConfiguration?
+    @Published private(set) var activeRun: RunningState?
+    @Published private(set) var runRecords: [RunRecord] = []
+    @Published private(set) var locationAuthorization: LocationAuthorizationState = .notDetermined
     @Published private(set) var now = Date.now
     @Published var message: String?
 
     private let store: JSONLocalStore
     private let activityManager: LiveActivityManager
     private let notificationScheduler: LocalNotificationScheduler
+    private let locationService: LocationService
     private var displayTimer: Timer?
     private var lastTravelKind: TravelStateKind?
     private var lastRelationshipDayCount: Int?
@@ -20,6 +24,8 @@ final class IslandifyAppModel: ObservableObject {
         static let activeTimer = "active-timer"
         static let activeTravel = "active-travel"
         static let activeRelationship = "active-relationship"
+        static let activeRun = "active-run"
+        static let runRecords = "run-records"
     }
 
     init() {
@@ -29,10 +35,13 @@ final class IslandifyAppModel: ObservableObject {
         self.store = JSONLocalStore(directoryURL: directory)
         self.activityManager = LiveActivityManager()
         self.notificationScheduler = LocalNotificationScheduler()
+        self.locationService = LocationService()
 
         loadTimer()
         loadTravel()
         loadRelationship()
+        loadRun()
+        loadRunRecords()
         displayTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.refresh()
@@ -75,6 +84,11 @@ final class IslandifyAppModel: ObservableObject {
                 Task { try? await activityManager.update(presentation: presentation) }
             }
         }
+
+        if let activeRun {
+            let presentation = RunningCalculator.presentation(for: activeRun, at: date)
+            Task { try? await activityManager.update(presentation: presentation) }
+        }
     }
 
     func startTimer(
@@ -86,7 +100,7 @@ final class IslandifyAppModel: ObservableObject {
         progressStyle: ProgressStyle,
         autoEnd: Bool
     ) async {
-        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil else {
+        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
             message = "End the current activity before starting another one."
             return
         }
@@ -175,7 +189,7 @@ final class IslandifyAppModel: ObservableObject {
         iconText: String,
         theme: IslandifyTheme
     ) async {
-        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil else {
+        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
             message = "End the current activity before starting another one."
             return
         }
@@ -230,7 +244,7 @@ final class IslandifyAppModel: ObservableObject {
         countingMode: RelationshipCountingMode,
         notificationsEnabled: Bool
     ) async {
-        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil else {
+        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
             message = "End the current activity before starting another one."
             return
         }
@@ -279,6 +293,96 @@ final class IslandifyAppModel: ObservableObject {
         await resetRelationship()
     }
 
+    func startRun(name: String, theme: IslandifyTheme, iconText: String) async {
+        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
+            message = "End the current activity before starting another one."
+            return
+        }
+
+        let icon = iconText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? ActivityIcon.running
+            : ActivityIcon(emoji: iconText)
+        let configuration = RunningConfiguration(name: name, icon: icon, theme: theme)
+        let state = RunningCalculator.start(configuration: configuration, at: .now)
+        activeRun = state
+        persistRun()
+        message = nil
+
+        locationAuthorization = locationService.start { [weak self] sample in
+            Task { @MainActor [weak self] in
+                self?.receiveLocationSample(sample)
+            }
+        }
+        if !locationAuthorization.canCollectLocation {
+            message = locationMessage(for: locationAuthorization)
+        }
+
+        do {
+            try await activityManager.start(presentation: RunningCalculator.presentation(for: state, at: .now))
+        } catch {
+            message = [message, error.localizedDescription].compactMap { $0 }.joined(separator: " ")
+        }
+    }
+
+    func pauseRun() async {
+        guard let activeRun else { return }
+        let updated = RunningCalculator.pause(activeRun, at: .now)
+        self.activeRun = updated
+        locationService.stop()
+        persistRun()
+        try? await activityManager.update(presentation: RunningCalculator.presentation(for: updated, at: .now))
+    }
+
+    func resumeRun() async {
+        guard let activeRun else { return }
+        let updated = RunningCalculator.resume(activeRun, at: .now)
+        self.activeRun = updated
+        locationAuthorization = locationService.start { [weak self] sample in
+            Task { @MainActor [weak self] in
+                self?.receiveLocationSample(sample)
+            }
+        }
+        persistRun()
+        try? await activityManager.update(presentation: RunningCalculator.presentation(for: updated, at: .now))
+    }
+
+    func endRun(memo: String? = nil) async {
+        guard let activeRun else { return }
+        let completed = RunningCalculator.finish(activeRun, at: .now)
+        if let record = RunningCalculator.record(for: completed, at: .now, memo: memo) {
+            runRecords.insert(record, at: 0)
+            persistRunRecords()
+        }
+        locationService.stop()
+        await activityManager.end(presentation: RunningCalculator.presentation(for: completed, at: .now))
+        self.activeRun = nil
+        try? store.removeValue(forKey: StoreKey.activeRun)
+    }
+
+    private func receiveLocationSample(_ sample: LocationSample) {
+        guard let activeRun else { return }
+        let updated = RunningCalculator.addSample(activeRun, sample: sample)
+        guard updated != activeRun else { return }
+        self.activeRun = updated
+        persistRun()
+        Task { try? await activityManager.update(presentation: RunningCalculator.presentation(for: updated, at: .now)) }
+    }
+
+    private func locationMessage(for state: LocationAuthorizationState) -> String {
+        switch state {
+        case .notDetermined:
+            return "Location permission is being requested. The run can continue while permission is decided."
+        case .denied:
+            return "Location access was denied. This run will continue as a time-only run."
+        case .restricted:
+            return "Location access is restricted. This run will continue as a time-only run."
+        case .unavailable:
+            return "Location is unavailable. This run will continue as a time-only run."
+        case .authorizedWhenInUse, .authorizedAlways:
+            return ""
+        }
+    }
+
     private func loadTimer() {
         do {
             if let stored = try store.load(TimerState.self, forKey: StoreKey.activeTimer) {
@@ -313,6 +417,24 @@ final class IslandifyAppModel: ObservableObject {
         }
     }
 
+    private func loadRun() {
+        do {
+            if let stored = try store.load(RunningState.self, forKey: StoreKey.activeRun) {
+                activeRun = stored
+            }
+        } catch {
+            message = "Saved run could not be loaded."
+        }
+    }
+
+    private func loadRunRecords() {
+        do {
+            runRecords = try store.load([RunRecord].self, forKey: StoreKey.runRecords) ?? []
+        } catch {
+            message = "Run history could not be loaded."
+        }
+    }
+
     private func persistTimer() {
         guard let activeTimer else { return }
         do {
@@ -337,6 +459,23 @@ final class IslandifyAppModel: ObservableObject {
             try store.save(activeRelationship, forKey: StoreKey.activeRelationship)
         } catch {
             message = "Relationship counter could not be saved on this device."
+        }
+    }
+
+    private func persistRun() {
+        guard let activeRun else { return }
+        do {
+            try store.save(activeRun, forKey: StoreKey.activeRun)
+        } catch {
+            message = "Run could not be saved on this device."
+        }
+    }
+
+    private func persistRunRecords() {
+        do {
+            try store.save(runRecords, forKey: StoreKey.runRecords)
+        } catch {
+            message = "Run history could not be saved on this device."
         }
     }
 }
