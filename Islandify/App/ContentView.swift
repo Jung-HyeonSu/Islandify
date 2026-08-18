@@ -5,20 +5,21 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
+        let copy = IslandifyCopy.current
         NavigationStack {
             TabView {
                 TimerFeatureView()
-                    .tabItem { Label("Timer", systemImage: "timer") }
+                    .tabItem { Label(copy.timer, systemImage: "timer") }
                 TravelFeatureView()
-                    .tabItem { Label("Travel", systemImage: "airplane.departure") }
+                    .tabItem { Label(copy.travel, systemImage: "airplane.departure") }
                 RelationshipFeatureView()
-                    .tabItem { Label("Together", systemImage: "heart.fill") }
+                    .tabItem { Label(copy.relationship, systemImage: "heart.fill") }
                 RunningFeatureView()
-                    .tabItem { Label("Run", systemImage: "figure.run") }
+                    .tabItem { Label(copy.running, systemImage: "figure.run") }
                 CustomizationFeatureView()
-                    .tabItem { Label("Style", systemImage: "slider.horizontal.3") }
+                    .tabItem { Label(copy.style, systemImage: "slider.horizontal.3") }
             }
-            .navigationTitle("Islandify")
+            .navigationTitle(copy.appName)
         }
         .onChange(of: scenePhase) { phase in
             if phase == .active {

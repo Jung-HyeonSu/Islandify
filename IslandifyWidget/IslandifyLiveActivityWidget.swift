@@ -29,6 +29,7 @@ struct IslandifyLiveActivityWidget: Widget {
                         .lineLimit(1)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
+                    let copy = IslandifyCopy.current
                     VStack(alignment: .leading, spacing: 5) {
                         IslandifyProgressView(state: state)
                         HStack {
@@ -37,7 +38,7 @@ struct IslandifyLiveActivityWidget: Widget {
                                 .font(.caption)
                                 .lineLimit(1)
                             Spacer(minLength: 8)
-                            Text(state.phase.rawValue.capitalized)
+                            Text(copy.phaseLabel(state.phase))
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
@@ -141,7 +142,7 @@ private struct IslandifyElapsedValue: View {
             Text(timerInterval: startDate...Date.distantFuture, countsDown: false)
                 .font(.caption.monospacedDigit())
                 .lineLimit(1)
-                .accessibilityLabel("Elapsed time")
+                .accessibilityLabel(IslandifyCopy.current.elapsedTime)
         }
     }
 }

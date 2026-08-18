@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TimerFeatureView: View {
     @EnvironmentObject private var model: IslandifyAppModel
-    @State private var name = "Deep focus"
+    @State private var name = IslandifyCopy.current.timerExampleName
     @State private var durationMinutes = 25
     @State private var iconText = "🔥"
     @State private var theme: IslandifyTheme = .neonTimer
@@ -36,58 +36,59 @@ struct TimerFeatureView: View {
     }
 
     private var timerForm: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label("Timer", systemImage: "timer")
+        let copy = IslandifyCopy.current
+        return VStack(alignment: .leading, spacing: 16) {
+            Label(copy.timer, systemImage: "timer")
                 .font(.title2.weight(.semibold))
 
-            Text("Keep the source of truth on an absolute end date so the timer stays correct after suspension.")
+            Text(copy.timerFormDescription)
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            TextField("Name", text: $name)
+            TextField(copy.name, text: $name)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Timer name")
+                .accessibilityLabel(copy.timerName)
 
             HStack {
-                Label("Duration", systemImage: "clock")
+                Label(copy.duration, systemImage: "clock")
                 Spacer()
                 Stepper(value: $durationMinutes, in: 1...480) {
-                    Text("\(durationMinutes) min")
+                    Text(copy.durationMinutes(durationMinutes))
                         .monospacedDigit()
                 }
-                .accessibilityLabel("Duration, \(durationMinutes) minutes")
+                .accessibilityLabel(copy.durationAccessibility(minutes: durationMinutes))
             }
 
             HStack {
-                Label("Icon", systemImage: "face.smiling")
+                Label(copy.icon, systemImage: "face.smiling")
                 Spacer()
                 TextField("🔥", text: $iconText)
                     .multilineTextAlignment(.trailing)
                     .frame(width: 72)
                     .textFieldStyle(.roundedBorder)
-                    .accessibilityLabel("Timer emoji")
+                    .accessibilityLabel(copy.timerEmoji)
             }
 
-            Picker("Theme", selection: $theme) {
+            Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(theme.displayName).tag(theme)
+                    Text(copy.themeName(theme)).tag(theme)
                 }
             }
 
-            Picker("Alert sound", selection: $alertSound) {
+            Picker(copy.alertSound, selection: $alertSound) {
                 ForEach(TimerAlertSound.allCases, id: \.self) { sound in
-                    Text(sound.rawValue.capitalized).tag(sound)
+                    Text(copy.alertSoundName(sound.rawValue)).tag(sound)
                 }
             }
 
-            Picker("Progress", selection: $progressStyle) {
+            Picker(copy.progress, selection: $progressStyle) {
                 ForEach(ProgressStyle.allCases, id: \.self) { style in
-                    Text(style.rawValue.capitalized).tag(style)
+                    Text(copy.progressStyleName(style)).tag(style)
                 }
             }
 
-            Toggle("End Live Activity when complete", isOn: $autoEnd)
+            Toggle(copy.endLiveActivityWhenComplete, isOn: $autoEnd)
 
             Button {
                 Task {
@@ -102,17 +103,18 @@ struct TimerFeatureView: View {
                     )
                 }
             } label: {
-                Label("Start timer", systemImage: "play.fill")
+                Label(copy.startTimer, systemImage: "play.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .accessibilityHint("Starts the timer and requests a Live Activity if it is enabled")
+            .accessibilityHint(copy.startTimerHint)
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
 
     private func activeTimerCard(_ state: TimerState) -> some View {
+        let copy = IslandifyCopy.current
         let snapshot = TimerEngine.snapshot(for: state, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top) {
@@ -120,7 +122,7 @@ struct TimerFeatureView: View {
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
                 Spacer()
-                Text(state.phase.rawValue.capitalized)
+                Text(copy.phaseLabel(state.phase))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
             }
@@ -130,34 +132,37 @@ struct TimerFeatureView: View {
                 .monospacedDigit()
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
-                .accessibilityLabel("\(state.configuration.name), \(IslandifyTimeFormatter.duration(snapshot.remaining)) remaining")
+                .accessibilityLabel(copy.timerRemaining(
+                    name: state.configuration.name,
+                    value: IslandifyTimeFormatter.duration(snapshot.remaining)
+                ))
 
             ProgressView(value: snapshot.progress)
                 .tint(Color(hex: state.configuration.theme.palette.accentHex))
-                .accessibilityValue("\(Int(snapshot.progress * 100)) percent")
+                .accessibilityValue(copy.progressPercent(Int(snapshot.progress * 100)))
 
             HStack {
                 if state.phase == .active {
-                    Button("Pause") { Task { await model.pauseTimer() } }
+                    Button(copy.pause) { Task { await model.pauseTimer() } }
                         .buttonStyle(.borderedProminent)
                 } else if state.phase == .paused {
-                    Button("Resume") { Task { await model.resumeTimer() } }
+                    Button(copy.resume) { Task { await model.resumeTimer() } }
                         .buttonStyle(.borderedProminent)
                 } else if state.phase == .completed {
                     Text(state.configuration.presentation.completionMessage)
                         .font(.headline)
                 }
 
-                Button("+1 min") { Task { await model.addMinute() } }
+                Button(copy.addMinute) { Task { await model.addMinute() } }
                     .buttonStyle(.bordered)
                     .disabled(state.phase == .completed || state.phase == .ended)
 
                 Menu {
-                    Button("Reset", role: .destructive) { Task { await model.resetTimer() } }
-                    Button("End", role: .destructive) { Task { await model.endTimer() } }
+                    Button(copy.reset, role: .destructive) { Task { await model.resetTimer() } }
+                    Button(copy.end, role: .destructive) { Task { await model.endTimer() } }
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .accessibilityLabel("More timer actions")
+                        .accessibilityLabel(copy.moreTimerActions)
                 }
             }
         }

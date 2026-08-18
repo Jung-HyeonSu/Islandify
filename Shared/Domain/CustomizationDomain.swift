@@ -32,9 +32,11 @@ public enum PresentationComposer {
     public static func previewState(
         for kind: ActivityKind,
         configuration: PresentationConfiguration,
-        phase: ActivityPhase = .active
+        phase: ActivityPhase = .active,
+        language: IslandifyLanguage = .current
     ) -> ActivityPresentationState {
-        let (primary, secondary, progress) = sampleValues(for: kind, phase: phase)
+        let copy = IslandifyCopy(language: language)
+        let (primary, secondary, progress) = sampleValues(for: kind, phase: phase, copy: copy)
         let base = ActivityPresentationState(
             kind: kind,
             phase: phase,
@@ -53,9 +55,9 @@ public enum PresentationComposer {
             accessibilityLabel: "\(configuration.title), \(primary)"
         )
 
-        let compactLeading = value(for: configuration.compactLeading, state: base)
-        let compactTrailing = value(for: configuration.compactTrailing, state: base)
-        let details = configuration.expandedDetails.map { value(for: $0, state: base) }
+        let compactLeading = value(for: configuration.compactLeading, state: base, copy: copy)
+        let compactTrailing = value(for: configuration.compactTrailing, state: base, copy: copy)
+        let details = configuration.expandedDetails.map { value(for: $0, state: base, copy: copy) }
         return ActivityPresentationState(
             kind: kind,
             phase: phase,
@@ -76,19 +78,27 @@ public enum PresentationComposer {
         )
     }
 
-    private static func sampleValues(for kind: ActivityKind, phase: ActivityPhase) -> (String, String?, Double?) {
+    private static func sampleValues(
+        for kind: ActivityKind,
+        phase: ActivityPhase,
+        copy: IslandifyCopy
+    ) -> (String, String?, Double?) {
         if phase == .completed {
-            return ("Done", "Completed", 1)
+            return (copy.defaultCompletionMessage, copy.phaseLabel(.completed), 1)
         }
         switch kind {
         case .timer: return ("24:58", "40%", 0.4)
-        case .travel: return ("D-7", "Seoul", nil)
-        case .relationship: return ("D+100", "Next annual", nil)
+        case .travel: return ("D-7", copy.destinationExample, nil)
+        case .relationship: return ("D+100", copy.nextMilestone(copy.annualMilestone(years: 1)), nil)
         case .running: return ("5.00 km", "05:42/km", nil)
         }
     }
 
-    private static func value(for slot: PresentationSlot, state: ActivityPresentationState) -> String {
+    private static func value(
+        for slot: PresentationSlot,
+        state: ActivityPresentationState,
+        copy: IslandifyCopy
+    ) -> String {
         switch slot {
         case .icon: return state.icon.value
         case .title: return state.title
@@ -96,7 +106,7 @@ public enum PresentationComposer {
         case .primaryValue: return state.primaryValue
         case .secondaryValue: return state.secondaryValue ?? ""
         case .progress: return state.progress.map { "\(Int(($0 * 100).rounded()))%" } ?? ""
-        case .phase: return state.phase.rawValue.capitalized
+        case .phase: return copy.phaseLabel(state.phase)
         }
     }
 }

@@ -28,88 +28,89 @@ struct CustomizationFeatureView: View {
     }
 
     private var editor: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Label("Customize", systemImage: "slider.horizontal.3")
+        let copy = IslandifyCopy.current
+        return VStack(alignment: .leading, spacing: 14) {
+            Label(copy.customize, systemImage: "slider.horizontal.3")
                 .font(.title2.weight(.semibold))
 
-            Text("Choose semantic values for Apple’s fixed Live Activity slots. Islandify never turns the Dynamic Island into a free-form canvas.")
+            Text(copy.customizationDescription)
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Picker("Activity", selection: $kind) {
+            Picker(copy.activity, selection: $kind) {
                 ForEach(ActivityKind.allCases, id: \.self) { kind in
-                    Text(kind.rawValue.capitalized).tag(kind)
+                    Text(copy.activityName(kind)).tag(kind)
                 }
             }
 
-            TextField("Title", text: $configuration.title)
+            TextField(copy.title, text: $configuration.title)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Live Activity title")
-            TextField("Short description", text: $configuration.description)
+                .accessibilityLabel(copy.liveActivityTitle)
+            TextField(copy.shortDescription, text: $configuration.description)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Live Activity description")
+                .accessibilityLabel(copy.liveActivityDescription)
 
             HStack {
-                Label("Icon / emoji", systemImage: "face.smiling")
+                Label(copy.iconOrEmoji, systemImage: "face.smiling")
                 Spacer()
                 TextField("🔥", text: $iconText)
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 90)
-                    .accessibilityLabel("Live Activity icon or emoji")
+                    .accessibilityLabel(copy.liveActivityIconOrEmoji)
                     .onChange(of: iconText) { value in
                         configuration.icon = ActivityIcon(emoji: value)
                     }
             }
 
-            Picker("Theme / color", selection: $configuration.theme) {
+            Picker(copy.themeOrColor, selection: $configuration.theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(theme.displayName).tag(theme)
+                    Text(copy.themeName(theme)).tag(theme)
                 }
             }
-            Picker("Number format", selection: $configuration.numberFormat) {
+            Picker(copy.numberFormat, selection: $configuration.numberFormat) {
                 ForEach(NumberFormat.allCases, id: \.self) { format in
-                    Text(format.rawValue).tag(format)
+                    Text(copy.numberFormatName(format)).tag(format)
                 }
             }
-            Picker("Progress", selection: $configuration.progressStyle) {
+            Picker(copy.progress, selection: $configuration.progressStyle) {
                 ForEach(ProgressStyle.allCases, id: \.self) { style in
-                    Text(style.rawValue.capitalized).tag(style)
+                    Text(copy.progressStyleName(style)).tag(style)
                 }
             }
-            Picker("Alignment", selection: $configuration.alignment) {
+            Picker(copy.alignment, selection: $configuration.alignment) {
                 ForEach(SlotAlignment.allCases, id: \.self) { alignment in
-                    Text(alignment.rawValue.capitalized).tag(alignment)
+                    Text(copy.alignmentName(alignment)).tag(alignment)
                 }
             }
-            Picker("Compact leading slot", selection: $configuration.compactLeading) {
+            Picker(copy.compactLeadingSlot, selection: $configuration.compactLeading) {
                 ForEach(PresentationSlot.allCases, id: \.self) { slot in
-                    Text(slot.rawValue).tag(slot)
+                    Text(copy.slotName(slot)).tag(slot)
                 }
             }
-            Picker("Compact trailing slot", selection: $configuration.compactTrailing) {
+            Picker(copy.compactTrailingSlot, selection: $configuration.compactTrailing) {
                 ForEach(PresentationSlot.allCases, id: \.self) { slot in
-                    Text(slot.rawValue).tag(slot)
+                    Text(copy.slotName(slot)).tag(slot)
                 }
             }
 
-            Text("Expanded details")
+            Text(copy.expandedDetails)
                 .font(.headline)
             ForEach(0..<3, id: \.self) { index in
-                Picker("Detail \(index + 1)", selection: Binding(
+                Picker(copy.detail(index + 1), selection: Binding(
                     get: { expandedSlot(at: index) },
                     set: { updateExpandedSlot(at: index, value: $0) }
                 )) {
                     ForEach(PresentationSlot.allCases, id: \.self) { slot in
-                        Text(slot.rawValue).tag(slot)
+                        Text(copy.slotName(slot)).tag(slot)
                     }
                 }
             }
 
-            TextField("Completion message", text: $configuration.completionMessage)
+            TextField(copy.completionMessage, text: $configuration.completionMessage)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Completion message")
+                .accessibilityLabel(copy.completionMessage)
 
             Button {
                 let errors = PresentationComposer.validate(configuration)
@@ -117,10 +118,10 @@ struct CustomizationFeatureView: View {
                     model.saveComposition(configuration, for: kind)
                     validationMessage = nil
                 } else {
-                    validationMessage = errors.map { String(describing: $0) }.joined(separator: ", ")
+                    validationMessage = errors.map { copy.validationMessage(code: String(describing: $0)) }.joined(separator: ", ")
                 }
             } label: {
-                Label("Save layout", systemImage: "square.and.arrow.down")
+                Label(copy.saveLayout, systemImage: "square.and.arrow.down")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -130,9 +131,10 @@ struct CustomizationFeatureView: View {
     }
 
     private var preview: some View {
+        let copy = IslandifyCopy.current
         let state = PresentationComposer.previewState(for: kind, configuration: configuration)
         return VStack(alignment: .leading, spacing: 12) {
-            Text("Preview all system surfaces")
+            Text(copy.previewAllSurfaces)
                 .font(.headline)
             ForEach(ActivitySurface.allCases, id: \.self) { surface in
                 let rendered = ActivityPresentationRenderer.render(state, on: surface)
@@ -164,8 +166,9 @@ private struct PreviewSurfaceView: View {
     let state: ActivityPresentationState
 
     var body: some View {
+        let copy = IslandifyCopy.current
         VStack(alignment: .leading, spacing: 6) {
-            Text(rendered.surface.rawValue.capitalized)
+            Text(copy.surfaceName(rendered.surface))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
             HStack(spacing: 8) {

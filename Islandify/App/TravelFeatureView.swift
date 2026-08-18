@@ -2,8 +2,8 @@ import SwiftUI
 
 struct TravelFeatureView: View {
     @EnvironmentObject private var model: IslandifyAppModel
-    @State private var tripName = "Summer trip"
-    @State private var destination = "Seoul"
+    @State private var tripName = IslandifyCopy.current.travelExampleName
+    @State private var destination = IslandifyCopy.current.destinationExample
     @State private var departureDate = Date.now.addingTimeInterval(7 * 24 * 60 * 60)
     @State private var timeZoneIdentifier = TimeZone.current.identifier
     @State private var iconText = "✈️"
@@ -33,44 +33,45 @@ struct TravelFeatureView: View {
     }
 
     private var travelForm: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label("Travel D-day", systemImage: "airplane.departure")
+        let copy = IslandifyCopy.current
+        return VStack(alignment: .leading, spacing: 16) {
+            Label(copy.travelDdayTitle, systemImage: "airplane.departure")
                 .font(.title2.weight(.semibold))
 
-            TextField("Trip name", text: $tripName)
+            TextField(copy.tripName, text: $tripName)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Trip name")
+                .accessibilityLabel(copy.tripName)
 
-            TextField("Destination", text: $destination)
+            TextField(copy.destination, text: $destination)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Destination")
+                .accessibilityLabel(copy.destination)
 
-            DatePicker("Departure", selection: $departureDate, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
-                .accessibilityLabel("Departure date and time")
+            DatePicker(copy.departure, selection: $departureDate, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
+                .accessibilityLabel(copy.departureDateAndTime)
 
             HStack {
-                Label("Timezone", systemImage: "globe")
+                Label(copy.timezone, systemImage: "globe")
                 Spacer()
-                TextField("Asia/Seoul", text: $timeZoneIdentifier)
+                TextField(copy.timezoneExample, text: $timeZoneIdentifier)
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.roundedBorder)
                     .frame(maxWidth: 190)
-                    .accessibilityLabel("Departure timezone")
+                    .accessibilityLabel(copy.departureTimezone)
             }
 
             HStack {
-                Label("Icon", systemImage: "face.smiling")
+                Label(copy.icon, systemImage: "face.smiling")
                 Spacer()
                 TextField("✈️", text: $iconText)
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 72)
-                    .accessibilityLabel("Trip emoji")
+                    .accessibilityLabel(copy.tripEmoji)
             }
 
-            Picker("Theme", selection: $theme) {
+            Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(theme.displayName).tag(theme)
+                    Text(copy.themeName(theme)).tag(theme)
                 }
             }
 
@@ -86,18 +87,19 @@ struct TravelFeatureView: View {
                     )
                 }
             } label: {
-                Label("Start trip countdown", systemImage: "play.fill")
+                Label(copy.startTripCountdown, systemImage: "play.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .disabled(model.activeTimer != nil)
-            .accessibilityHint("Starts the trip countdown and uses the saved departure timezone")
+            .accessibilityHint(copy.startTripHint)
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
 
     private func activeTravelCard(_ configuration: TravelConfiguration) -> some View {
+        let copy = IslandifyCopy.current
         let state = TravelCalculator.state(for: configuration, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top) {
@@ -128,15 +130,15 @@ struct TravelFeatureView: View {
                 .foregroundStyle(.secondary)
 
             HStack {
-                Text("Timezone: \(configuration.timeZoneIdentifier)")
+                Text("\(copy.timezone): \(configuration.timeZoneIdentifier)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Menu {
-                    Button("End trip", role: .destructive) { Task { await model.endTravel() } }
+                    Button(copy.endTrip, role: .destructive) { Task { await model.endTravel() } }
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .accessibilityLabel("More trip actions")
+                        .accessibilityLabel(copy.moreTripActions)
                 }
             }
         }
@@ -144,7 +146,11 @@ struct TravelFeatureView: View {
         .background(Color(hex: configuration.theme.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 20))
         .foregroundStyle(Color(hex: configuration.theme.palette.foregroundHex))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(configuration.tripName), \(configuration.destination), \(state.displayValue)")
+        .accessibilityLabel(copy.travelAccessibility(
+            tripName: configuration.tripName,
+            destination: configuration.destination,
+            value: state.displayValue
+        ))
     }
 }
 

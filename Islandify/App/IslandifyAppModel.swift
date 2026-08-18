@@ -13,6 +13,8 @@ final class IslandifyAppModel: ObservableObject {
     @Published private(set) var now = Date.now
     @Published var message: String?
 
+    private var copy: IslandifyCopy { IslandifyCopy.current }
+
     private let store: JSONLocalStore
     private let activityManager: LiveActivityManager
     private let notificationScheduler: LocalNotificationScheduler
@@ -111,7 +113,7 @@ final class IslandifyAppModel: ObservableObject {
         autoEnd: Bool
     ) async {
         guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
-            message = "End the current activity before starting another one."
+            message = copy.endCurrentActivity
             return
         }
 
@@ -137,10 +139,10 @@ final class IslandifyAppModel: ObservableObject {
             do {
                 try await activityManager.start(presentation: TimerEngine.presentation(for: state, at: .now))
             } catch {
-                message = error.localizedDescription
+                message = localizedMessage(for: error)
             }
         } catch {
-            message = error.localizedDescription
+            message = localizedMessage(for: error)
         }
     }
 
@@ -152,7 +154,7 @@ final class IslandifyAppModel: ObservableObject {
             persistTimer()
             try? await activityManager.update(presentation: TimerEngine.presentation(for: updated, at: .now))
         } catch {
-            message = error.localizedDescription
+            message = localizedMessage(for: error)
         }
     }
 
@@ -164,7 +166,7 @@ final class IslandifyAppModel: ObservableObject {
             persistTimer()
             try? await activityManager.update(presentation: TimerEngine.presentation(for: updated, at: .now))
         } catch {
-            message = error.localizedDescription
+            message = localizedMessage(for: error)
         }
     }
 
@@ -176,7 +178,7 @@ final class IslandifyAppModel: ObservableObject {
             persistTimer()
             try? await activityManager.update(presentation: TimerEngine.presentation(for: updated, at: .now))
         } catch {
-            message = error.localizedDescription
+            message = localizedMessage(for: error)
         }
     }
 
@@ -201,7 +203,7 @@ final class IslandifyAppModel: ObservableObject {
         theme: IslandifyTheme
     ) async {
         guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
-            message = "End the current activity before starting another one."
+            message = copy.endCurrentActivity
             return
         }
 
@@ -226,10 +228,10 @@ final class IslandifyAppModel: ObservableObject {
             do {
                 try await activityManager.start(presentation: TravelCalculator.presentation(for: configuration, at: .now))
             } catch {
-                message = error.localizedDescription
+                message = localizedMessage(for: error)
             }
         } catch {
-            message = error.localizedDescription
+            message = localizedMessage(for: error)
         }
     }
 
@@ -257,7 +259,7 @@ final class IslandifyAppModel: ObservableObject {
         notificationsEnabled: Bool
     ) async {
         guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
-            message = "End the current activity before starting another one."
+            message = copy.endCurrentActivity
             return
         }
 
@@ -283,7 +285,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             try await activityManager.start(presentation: RelationshipCalculator.presentation(for: configuration, at: .now))
         } catch {
-            message = error.localizedDescription
+            message = localizedMessage(for: error)
         }
 
         if notificationsEnabled {
@@ -308,7 +310,7 @@ final class IslandifyAppModel: ObservableObject {
 
     func startRun(name: String, theme: IslandifyTheme, iconText: String) async {
         guard activeTimer == nil && activeTravel == nil && activeRelationship == nil && activeRun == nil else {
-            message = "End the current activity before starting another one."
+            message = copy.endCurrentActivity
             return
         }
 
@@ -334,7 +336,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             try await activityManager.start(presentation: RunningCalculator.presentation(for: state, at: .now))
         } catch {
-            message = [message, error.localizedDescription].compactMap { $0 }.joined(separator: " ")
+            message = [message, localizedMessage(for: error)].compactMap { $0 }.joined(separator: " ")
         }
     }
 
@@ -387,18 +389,7 @@ final class IslandifyAppModel: ObservableObject {
     }
 
     private func locationMessage(for state: LocationAuthorizationState) -> String {
-        switch state {
-        case .notDetermined:
-            return "Location permission is being requested. The run can continue while permission is decided."
-        case .denied:
-            return "Location access was denied. This run will continue as a time-only run."
-        case .restricted:
-            return "Location access is restricted. This run will continue as a time-only run."
-        case .unavailable:
-            return "Location is unavailable. This run will continue as a time-only run."
-        case .authorizedWhenInUse, .authorizedAlways:
-            return ""
-        }
+        copy.locationMessage(for: state.rawValue)
     }
 
     private func loadTimer() {
@@ -409,7 +400,7 @@ final class IslandifyAppModel: ObservableObject {
                 if reconciled != stored { persistTimer() }
             }
         } catch {
-            message = "Saved timer could not be loaded."
+            message = copy.savedTimerLoadFailed
         }
     }
 
@@ -420,7 +411,7 @@ final class IslandifyAppModel: ObservableObject {
                 lastTravelKind = TravelCalculator.state(for: stored, at: .now).kind
             }
         } catch {
-            message = "Saved trip could not be loaded."
+            message = copy.savedTravelLoadFailed
         }
     }
 
@@ -431,7 +422,7 @@ final class IslandifyAppModel: ObservableObject {
                 lastRelationshipDayCount = RelationshipCalculator.dayCount(for: stored, at: .now)
             }
         } catch {
-            message = "Saved relationship counter could not be loaded."
+            message = copy.savedRelationshipLoadFailed
         }
     }
 
@@ -441,13 +432,13 @@ final class IslandifyAppModel: ObservableObject {
                 if stored.phase == .active {
                     activeRun = RunningCalculator.pause(stored, at: .now)
                     persistRun()
-                    message = "The previous run was paused after relaunch. Resume it to continue GPS tracking."
+                    message = copy.previousRunPaused
                 } else {
                     activeRun = stored
                 }
             }
         } catch {
-            message = "Saved run could not be loaded."
+            message = copy.savedRunLoadFailed
         }
     }
 
@@ -455,7 +446,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             runRecords = try store.load([RunRecord].self, forKey: StoreKey.runRecords) ?? []
         } catch {
-            message = "Run history could not be loaded."
+            message = copy.runHistoryLoadFailed
         }
     }
 
@@ -467,7 +458,7 @@ final class IslandifyAppModel: ObservableObject {
                 return (kind, value)
             })
         } catch {
-            message = "Saved customization could not be loaded."
+            message = copy.savedCustomizationLoadFailed
         }
     }
 
@@ -476,7 +467,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             try store.save(activeTimer, forKey: StoreKey.activeTimer)
         } catch {
-            message = "Timer could not be saved on this device."
+            message = copy.timerSaveFailed
         }
     }
 
@@ -485,7 +476,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             try store.save(activeTravel, forKey: StoreKey.activeTravel)
         } catch {
-            message = "Trip could not be saved on this device."
+            message = copy.travelSaveFailed
         }
     }
 
@@ -494,7 +485,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             try store.save(activeRelationship, forKey: StoreKey.activeRelationship)
         } catch {
-            message = "Relationship counter could not be saved on this device."
+            message = copy.relationshipSaveFailed
         }
     }
 
@@ -503,7 +494,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             try store.save(activeRun, forKey: StoreKey.activeRun)
         } catch {
-            message = "Run could not be saved on this device."
+            message = copy.runSaveFailed
         }
     }
 
@@ -511,7 +502,7 @@ final class IslandifyAppModel: ObservableObject {
         do {
             try store.save(runRecords, forKey: StoreKey.runRecords)
         } catch {
-            message = "Run history could not be saved on this device."
+            message = copy.runHistorySaveFailed
         }
     }
 
@@ -524,7 +515,7 @@ final class IslandifyAppModel: ObservableObject {
             if foundActivity {
                 activeTravel = nil
                 try? store.removeValue(forKey: StoreKey.activeTravel)
-                message = "A duplicate saved activity was ignored; the timer remains authoritative."
+                message = copy.duplicateSavedActivity(timerIsAuthoritative: true)
             } else {
                 foundActivity = true
             }
@@ -533,7 +524,7 @@ final class IslandifyAppModel: ObservableObject {
             if foundActivity {
                 activeRelationship = nil
                 try? store.removeValue(forKey: StoreKey.activeRelationship)
-                message = "A duplicate saved activity was ignored; the first activity remains authoritative."
+                message = copy.duplicateSavedActivity(timerIsAuthoritative: false)
             } else {
                 foundActivity = true
             }
@@ -543,7 +534,7 @@ final class IslandifyAppModel: ObservableObject {
                 activeRun = nil
                 locationService.stop()
                 try? store.removeValue(forKey: StoreKey.activeRun)
-                message = "A duplicate saved activity was ignored; the first activity remains authoritative."
+                message = copy.duplicateSavedActivity(timerIsAuthoritative: false)
             }
         }
     }
@@ -551,9 +542,9 @@ final class IslandifyAppModel: ObservableObject {
     func handleDeepLink(_ url: URL) {
         guard url.scheme == "islandify" else { return }
         if url.host == "activity" {
-            message = "Activity details are shown in the active tab."
+            message = copy.activityDetailsInActiveTab
         } else {
-            message = "Islandify opened from a supported link."
+            message = copy.openedFromSupportedLink
         }
     }
 
@@ -567,9 +558,26 @@ final class IslandifyAppModel: ObservableObject {
         let stored = Dictionary(uniqueKeysWithValues: compositions.map { ($0.key.rawValue, $0.value) })
         do {
             try store.save(stored, forKey: StoreKey.compositions)
-            message = "Saved \(kind.rawValue) layout."
+            message = copy.savedLayout(for: kind)
         } catch {
-            message = "Customization could not be saved on this device."
+            message = copy.customizationSaveFailed
         }
+    }
+
+    private func localizedMessage(for error: Error) -> String {
+        if let liveActivityError = error as? LiveActivityError,
+           let description = liveActivityError.errorDescription {
+            return description
+        }
+        if let error = error as? TimerValidationError {
+            return copy.errorMessage(code: "timer.\(String(describing: error))") ?? error.localizedDescription
+        }
+        if let error = error as? TimerActionError {
+            return copy.errorMessage(code: "timer.\(String(describing: error))") ?? error.localizedDescription
+        }
+        if let error = error as? TravelValidationError {
+            return copy.errorMessage(code: "travel.\(String(describing: error))") ?? error.localizedDescription
+        }
+        return error.localizedDescription
     }
 }

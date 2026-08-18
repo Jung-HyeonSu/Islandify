@@ -59,9 +59,10 @@ public struct TimerConfiguration: Codable, Hashable, Sendable {
         self.alertSound = alertSound
         self.progressStyle = progressStyle
         self.autoEnd = autoEnd
+        let copy = IslandifyCopy.current
         self.presentation = presentation ?? PresentationConfiguration(
             title: trimmedName,
-            description: "Timer",
+            description: copy.timerDescription,
             icon: icon,
             theme: theme,
             numberFormat: .compactDuration,
@@ -69,7 +70,7 @@ public struct TimerConfiguration: Codable, Hashable, Sendable {
             compactLeading: .icon,
             compactTrailing: .primaryValue,
             expandedDetails: [.title, .primaryValue, .progress],
-            completionMessage: "\(trimmedName) complete"
+            completionMessage: copy.timerCompletion(name: trimmedName)
         )
     }
 
@@ -239,7 +240,12 @@ public enum TimerEngine {
         return updated
     }
 
-    public static func presentation(for state: TimerState, at date: Date) -> ActivityPresentationState {
+    public static func presentation(
+        for state: TimerState,
+        at date: Date,
+        language: IslandifyLanguage = .current
+    ) -> ActivityPresentationState {
+        let copy = IslandifyCopy(language: language)
         let snapshot = snapshot(for: state, at: date)
         let phase = snapshot.phase
         let value: String
@@ -247,11 +253,12 @@ public enum TimerEngine {
         case .duration:
             value = IslandifyTimeFormatter.duration(snapshot.remaining, includeHours: true)
         case .decimal:
-            value = "\(Int((snapshot.remaining / 60).rounded())) min"
+            value = copy.durationMinutes(Int((snapshot.remaining / 60).rounded()))
         default:
             value = IslandifyTimeFormatter.compactDuration(snapshot.remaining)
         }
-        let percent = "\(Int((snapshot.progress * 100).rounded()))%"
+        let percentValue = Int((snapshot.progress * 100).rounded())
+        let percent = "\(percentValue)%"
         let secondary = phase == .completed ? state.configuration.presentation.completionMessage : percent
         return ActivityPresentationState(
             kind: .timer,
@@ -266,9 +273,9 @@ public enum TimerEngine {
             progressStyle: state.configuration.presentation.progressStyle,
             compactLeading: state.configuration.presentation.icon.value,
             compactTrailing: value,
-            expandedDetails: [state.configuration.name, value, "Progress \(percent)"],
+            expandedDetails: [state.configuration.name, value, copy.progressPercent(percentValue)],
             completionMessage: state.configuration.presentation.completionMessage,
-            accessibilityLabel: "\(state.configuration.name), \(value), \(phase.rawValue)",
+            accessibilityLabel: "\(state.configuration.name), \(value), \(copy.phaseLabel(phase))",
             staleDate: state.phase == .active ? state.endDate : nil,
             countdownEndDate: state.phase == .active ? state.endDate : nil
         )

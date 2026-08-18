@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "Islandify";
+"NSLocationWhenInUseUsageDescription" = "Islandify uses your location only while a run is active to estimate distance and pace.";

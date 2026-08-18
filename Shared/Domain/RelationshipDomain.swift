@@ -34,6 +34,7 @@ public struct RelationshipConfiguration: Codable, Hashable, Sendable {
         presentation: PresentationConfiguration? = nil,
         notificationsEnabled: Bool = true
     ) {
+        let copy = IslandifyCopy.current
         self.id = id
         self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         self.startDate = startDate
@@ -52,7 +53,7 @@ public struct RelationshipConfiguration: Codable, Hashable, Sendable {
             compactLeading: .icon,
             compactTrailing: .primaryValue,
             expandedDetails: [.title, .primaryValue, .secondaryValue],
-            completionMessage: "Another day together"
+            completionMessage: copy.defaultPresentation(for: .relationship).completion
         )
         self.notificationsEnabled = notificationsEnabled
     }
@@ -100,20 +101,27 @@ public enum RelationshipCalculator {
     public static func nextDayMilestone(
         for configuration: RelationshipConfiguration,
         at date: Date,
-        calendar: Calendar? = nil
+        calendar: Calendar? = nil,
+        language: IslandifyLanguage = .current
     ) -> RelationshipMilestone {
         let calendar = calendar ?? IslandifyDateMath.calendar(timeZoneIdentifier: configuration.timeZoneIdentifier)
         let current = dayCount(for: configuration, at: date, calendar: calendar)
         let nextValue = max(100, ((current / 100) + 1) * 100)
         let offset = configuration.countingMode == .dPlus1 ? nextValue - 1 : nextValue
         let milestoneDate = calendar.date(byAdding: .day, value: offset, to: calendar.startOfDay(for: configuration.startDate)) ?? date
-        return RelationshipMilestone(kind: .dayCount, value: nextValue, date: milestoneDate, title: "D+\(nextValue)")
+        return RelationshipMilestone(
+            kind: .dayCount,
+            value: nextValue,
+            date: milestoneDate,
+            title: IslandifyCopy(language: language).relationshipDayMilestone(nextValue)
+        )
     }
 
     public static func nextAnnualMilestone(
         for configuration: RelationshipConfiguration,
         at date: Date,
-        calendar: Calendar? = nil
+        calendar: Calendar? = nil,
+        language: IslandifyLanguage = .current
     ) -> RelationshipMilestone {
         let calendar = calendar ?? IslandifyDateMath.calendar(timeZoneIdentifier: configuration.timeZoneIdentifier)
         let startDay = calendar.startOfDay(for: configuration.startDate)
@@ -125,29 +133,41 @@ public enum RelationshipCalculator {
             years += 1
             candidate = calendar.date(byAdding: .year, value: years, to: startDay) ?? candidate
         }
-        return RelationshipMilestone(kind: .annual, value: years, date: candidate, title: "\(years) year anniversary")
+        return RelationshipMilestone(
+            kind: .annual,
+            value: years,
+            date: candidate,
+            title: IslandifyCopy(language: language).annualMilestone(years: years)
+        )
     }
 
     public static func snapshot(
         for configuration: RelationshipConfiguration,
         at date: Date,
-        calendar: Calendar? = nil
+        calendar: Calendar? = nil,
+        language: IslandifyLanguage = .current
     ) -> RelationshipSnapshot {
+        let copy = IslandifyCopy(language: language)
         let dayCount = dayCount(for: configuration, at: date, calendar: calendar)
-        let nextDay = nextDayMilestone(for: configuration, at: date, calendar: calendar)
-        let nextAnnual = nextAnnualMilestone(for: configuration, at: date, calendar: calendar)
+        let nextDay = nextDayMilestone(for: configuration, at: date, calendar: calendar, language: language)
+        let nextAnnual = nextAnnualMilestone(for: configuration, at: date, calendar: calendar, language: language)
         let name = configuration.nickname.isEmpty ? configuration.name : configuration.nickname
         return RelationshipSnapshot(
             dayCount: dayCount,
             nextDayMilestone: nextDay,
             nextAnnualMilestone: nextAnnual,
-            message: "\(name)와 함께한 D+\(dayCount)"
+            message: copy.relationshipMessage(name: name, dayCount: dayCount)
         )
     }
 
-    public static func presentation(for configuration: RelationshipConfiguration, at date: Date) -> ActivityPresentationState {
-        let snapshot = snapshot(for: configuration, at: date)
-        let next = snapshot.nextDayMilestone.map { "Next \($0.title)" }
+    public static func presentation(
+        for configuration: RelationshipConfiguration,
+        at date: Date,
+        language: IslandifyLanguage = .current
+    ) -> ActivityPresentationState {
+        let copy = IslandifyCopy(language: language)
+        let snapshot = snapshot(for: configuration, at: date, language: language)
+        let next = snapshot.nextDayMilestone.map { copy.nextMilestone($0.title) }
         let dayValue = configuration.presentation.numberFormat == .decimal
             ? "\(snapshot.dayCount)"
             : IslandifyTimeFormatter.dayCount(snapshot.dayCount)
@@ -185,15 +205,24 @@ public struct RelationshipNotificationPlan: Hashable, Sendable {
     }
 
     public static func upcoming(for configuration: RelationshipConfiguration, at date: Date) -> [RelationshipNotificationPlan] {
+        upcoming(for: configuration, at: date, language: .current)
+    }
+
+    public static func upcoming(
+        for configuration: RelationshipConfiguration,
+        at date: Date,
+        language: IslandifyLanguage
+    ) -> [RelationshipNotificationPlan] {
         guard configuration.notificationsEnabled else { return [] }
-        let snapshot = RelationshipCalculator.snapshot(for: configuration, at: date)
+        let copy = IslandifyCopy(language: language)
+        let snapshot = RelationshipCalculator.snapshot(for: configuration, at: date, language: language)
         var plans: [RelationshipNotificationPlan] = []
         if let milestone = snapshot.nextDayMilestone {
             plans.append(RelationshipNotificationPlan(
                 identifier: "relationship-\(configuration.id.uuidString)-day-\(milestone.value)",
                 date: milestone.date,
                 title: milestone.title,
-                body: "\(configuration.name), 오늘은 \(milestone.title)"
+                body: copy.relationshipDayNotificationBody(name: configuration.name, title: milestone.title)
             ))
         }
         if let milestone = snapshot.nextAnnualMilestone {
@@ -201,7 +230,7 @@ public struct RelationshipNotificationPlan: Hashable, Sendable {
                 identifier: "relationship-\(configuration.id.uuidString)-annual-\(milestone.value)",
                 date: milestone.date,
                 title: milestone.title,
-                body: "\(configuration.name), \(milestone.title)"
+                body: copy.relationshipAnnualNotificationBody(name: configuration.name, title: milestone.title)
             ))
         }
         return plans

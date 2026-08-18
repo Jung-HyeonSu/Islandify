@@ -65,20 +65,21 @@ public struct RunningConfiguration: Codable, Hashable, Sendable {
 
     public init(
         id: UUID = UUID(),
-        name: String = "Run",
+        name: String = IslandifyCopy.current.defaultRunningName,
         icon: ActivityIcon = .running,
         theme: IslandifyTheme = .runningGreen,
         weightKg: Double = 65,
         presentation: PresentationConfiguration? = nil
     ) {
         self.id = id
-        self.name = name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Run" : name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let copy = IslandifyCopy.current
+        self.name = name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? copy.defaultRunningName : name.trimmingCharacters(in: .whitespacesAndNewlines)
         self.icon = icon
         self.theme = theme
         self.weightKg = weightKg > 0 && weightKg.isFinite ? weightKg : 65
         self.presentation = presentation ?? PresentationConfiguration(
             title: self.name,
-            description: "GPS run",
+            description: copy.runningDescription,
             icon: icon,
             theme: theme,
             numberFormat: .distance,
@@ -86,7 +87,7 @@ public struct RunningConfiguration: Codable, Hashable, Sendable {
             compactLeading: .icon,
             compactTrailing: .primaryValue,
             expandedDetails: [.title, .primaryValue, .secondaryValue],
-            completionMessage: "Run complete"
+            completionMessage: copy.defaultPresentation(for: .running).completion
         )
     }
 }
@@ -281,7 +282,12 @@ public enum RunningCalculator {
         return met * 3.5 * weightKg / 200 * (duration / 60)
     }
 
-    public static func presentation(for state: RunningState, at date: Date) -> ActivityPresentationState {
+    public static func presentation(
+        for state: RunningState,
+        at date: Date,
+        language: IslandifyLanguage = .current
+    ) -> ActivityPresentationState {
+        let copy = IslandifyCopy(language: language)
         let snapshot = snapshot(for: state, at: date)
         let distance: String
         switch state.configuration.presentation.numberFormat {
@@ -315,9 +321,18 @@ public enum RunningCalculator {
             progressStyle: state.configuration.presentation.progressStyle,
             compactLeading: state.configuration.presentation.icon.value,
             compactTrailing: distance,
-            expandedDetails: [distance, "Time \(IslandifyTimeFormatter.duration(snapshot.elapsed))", "Pace \(pace)"],
+            expandedDetails: copy.runningDetails(
+                distance: distance,
+                elapsed: IslandifyTimeFormatter.duration(snapshot.elapsed),
+                pace: pace
+            ),
             completionMessage: state.configuration.presentation.completionMessage,
-            accessibilityLabel: "\(state.configuration.name), \(distance), \(pace), \(IslandifyTimeFormatter.duration(snapshot.elapsed))",
+            accessibilityLabel: copy.runningAccessibility(
+                name: state.configuration.name,
+                distance: distance,
+                pace: pace,
+                elapsed: IslandifyTimeFormatter.duration(snapshot.elapsed)
+            ),
             countupStartDate: state.phase == .active ? date.addingTimeInterval(-snapshot.elapsed) : nil
         )
     }

@@ -76,7 +76,7 @@ final class TravelDomainTests: XCTestCase {
         XCTAssertEqual(d1.kind, .d1)
         XCTAssertEqual(d1.label, "D-1")
         XCTAssertEqual(dDay.kind, .dDay)
-        XCTAssertEqual(dDay.label, "D-DAY")
+        XCTAssertEqual(dDay.label(language: .english), "D-DAY")
     }
 
     func testDepartureDayProvidesDeterministicHourAndMinuteCountdown() throws {
@@ -100,7 +100,7 @@ final class TravelDomainTests: XCTestCase {
         XCTAssertEqual(state.hoursRemaining, 2)
         XCTAssertEqual(state.minutesRemaining, 32)
         XCTAssertEqual(state.countdownText, "02:32")
-        XCTAssertEqual(state.displayValue, "2시간 32분")
+        XCTAssertEqual(state.displayValue(language: .korean), "2시간 32분")
     }
 
     func testPastDepartureIsThePostDepartureTravelStartedState() throws {
@@ -121,7 +121,7 @@ final class TravelDomainTests: XCTestCase {
 
         XCTAssertEqual(state.kind, .started)
         XCTAssertTrue(state.isPostDeparture)
-        XCTAssertEqual(state.label, "여행 시작")
+        XCTAssertEqual(state.label(language: .korean), "여행 시작")
         XCTAssertNil(state.countdown)
     }
 

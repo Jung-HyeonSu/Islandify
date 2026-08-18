@@ -51,5 +51,30 @@ final class PresentationTests: XCTestCase {
         XCTAssertLessThanOrEqual(compact.leadingText?.count ?? 0, 10)
         XCTAssertLessThanOrEqual(compact.trailingText?.count ?? 0, 10)
     }
+
+    func testLanguagePolicyUsesKoreanOnlyForKoreanLocale() {
+        XCTAssertEqual(IslandifyLanguage(localeIdentifier: "ko-KR"), .korean)
+        XCTAssertEqual(IslandifyLanguage(localeIdentifier: "ko"), .korean)
+        XCTAssertEqual(IslandifyLanguage(localeIdentifier: "en-US"), .english)
+        XCTAssertEqual(IslandifyLanguage(localeIdentifier: "ja-JP"), .english)
+        XCTAssertEqual(IslandifyLanguage(localeIdentifier: "zh-Hans"), .english)
+
+        XCTAssertEqual(IslandifyCopy(language: .korean).timer, "타이머")
+        XCTAssertEqual(IslandifyCopy(language: .english).timer, "Timer")
+        XCTAssertEqual(IslandifyCopy(language: .korean).progressPercent(40), "진행률 40%")
+        XCTAssertEqual(IslandifyCopy(language: .english).progressPercent(40), "Progress 40%")
+    }
+
+    func testSharedDefaultsAndPhaseLabelsFollowLanguage() {
+        let korean = PresentationConfiguration.default(for: .timer, language: .korean)
+        let english = PresentationConfiguration.default(for: .timer, language: .english)
+
+        XCTAssertEqual(korean.title, "집중")
+        XCTAssertEqual(korean.completionMessage, "집중 완료")
+        XCTAssertEqual(english.title, "Focus")
+        XCTAssertEqual(english.completionMessage, "Focus complete")
+        XCTAssertEqual(IslandifyCopy(language: .korean).phaseLabel(.paused), "일시정지")
+        XCTAssertEqual(IslandifyCopy(language: .english).phaseLabel(.paused), "Paused")
+    }
 }
 #endif

@@ -40,7 +40,7 @@ public struct ActivityIcon: Codable, Hashable, Sendable {
     public static let running = ActivityIcon(systemName: "figure.run")
 
     public var accessibilityLabel: String {
-        kind == .emoji ? "Emoji \(value)" : value.replacingOccurrences(of: ".", with: " ")
+        IslandifyCopy.current.iconAccessibilityLabel(self)
     }
 }
 
@@ -109,14 +109,7 @@ public enum IslandifyTheme: String, Codable, CaseIterable, Hashable, Sendable {
     case creamDiary
 
     public var displayName: String {
-        switch self {
-        case .minimalBlack: return "Minimal Black"
-        case .pastelCouple: return "Pastel Couple"
-        case .travelBlue: return "Travel Blue"
-        case .neonTimer: return "Neon Timer"
-        case .runningGreen: return "Running Green"
-        case .creamDiary: return "Cream Diary"
-        }
+        IslandifyCopy.current.themeName(self)
     }
 
     public var palette: ThemePalette {
@@ -161,7 +154,7 @@ public struct PresentationConfiguration: Codable, Hashable, Sendable {
         compactLeading: PresentationSlot = .icon,
         compactTrailing: PresentationSlot = .primaryValue,
         expandedDetails: [PresentationSlot] = [.title, .primaryValue, .progress],
-        completionMessage: String = "Done"
+        completionMessage: String = IslandifyCopy.current.defaultCompletionMessage
     ) {
         self.title = title
         self.description = description
@@ -176,16 +169,21 @@ public struct PresentationConfiguration: Codable, Hashable, Sendable {
         self.completionMessage = completionMessage
     }
 
-    public static func `default`(for kind: ActivityKind) -> PresentationConfiguration {
+    public static func `default`(
+        for kind: ActivityKind,
+        language: IslandifyLanguage = .current
+    ) -> PresentationConfiguration {
+        let copy = IslandifyCopy(language: language)
+        let defaults = copy.defaultPresentation(for: kind)
         switch kind {
         case .timer:
-            return PresentationConfiguration(title: "Focus", icon: .flame, theme: .neonTimer, numberFormat: .compactDuration, progressStyle: .bar, completionMessage: "Focus complete")
+            return PresentationConfiguration(title: defaults.title, icon: .flame, theme: .neonTimer, numberFormat: .compactDuration, progressStyle: .bar, completionMessage: defaults.completion)
         case .travel:
-            return PresentationConfiguration(title: "Trip", icon: .airplane, theme: .travelBlue, numberFormat: .dayCount, progressStyle: .hidden, completionMessage: "Have a great trip")
+            return PresentationConfiguration(title: defaults.title, icon: .airplane, theme: .travelBlue, numberFormat: .dayCount, progressStyle: .hidden, completionMessage: defaults.completion)
         case .relationship:
-            return PresentationConfiguration(title: "Together", icon: .heart, theme: .pastelCouple, numberFormat: .dayCount, progressStyle: .dots, completionMessage: "Another day together")
+            return PresentationConfiguration(title: defaults.title, icon: .heart, theme: .pastelCouple, numberFormat: .dayCount, progressStyle: .dots, completionMessage: defaults.completion)
         case .running:
-            return PresentationConfiguration(title: "Run", icon: .running, theme: .runningGreen, numberFormat: .distance, progressStyle: .bar, completionMessage: "Run complete")
+            return PresentationConfiguration(title: defaults.title, icon: .running, theme: .runningGreen, numberFormat: .distance, progressStyle: .bar, completionMessage: defaults.completion)
         }
     }
 }
@@ -224,7 +222,7 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
         compactLeading: String,
         compactTrailing: String,
         expandedDetails: [String] = [],
-        completionMessage: String = "Done",
+        completionMessage: String = IslandifyCopy.current.defaultCompletionMessage,
         accessibilityLabel: String? = nil,
         staleDate: Date? = nil,
         countdownEndDate: Date? = nil,
@@ -314,7 +312,7 @@ public enum ActivityPresentationRenderer {
             return ActivitySurfaceModel(
                 surface: surface,
                 leadingText: truncate(state.title, limit: 24),
-                trailingText: truncate(state.phase.rawValue.capitalized, limit: 12),
+                trailingText: truncate(IslandifyCopy.current.phaseLabel(state.phase), limit: 12),
                 primaryText: truncate(state.primaryValue, limit: 24),
                 secondaryText: state.secondaryValue.map { truncate($0, limit: 24) },
                 details: details.map { truncate($0, limit: 28) },

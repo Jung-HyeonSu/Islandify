@@ -53,7 +53,7 @@ public struct TravelConfiguration: Codable, Hashable, Sendable {
             compactLeading: .icon,
             compactTrailing: .primaryValue,
             expandedDetails: [.title, .primaryValue, .secondaryValue],
-            completionMessage: "여행 시작"
+            completionMessage: IslandifyCopy.current.travelStarted
         )
     }
 
@@ -173,7 +173,11 @@ public struct TravelCountdown: Codable, Hashable, Sendable {
     }
 
     public var displayText: String {
-        "\(hours)시간 \(minutes)분"
+        displayText(language: .current)
+    }
+
+    public func displayText(language: IslandifyLanguage) -> String {
+        IslandifyCopy(language: language).travelCountdown(hours: hours, minutes: minutes)
     }
 }
 
@@ -223,6 +227,10 @@ public struct TravelState: Codable, Hashable, Sendable {
     public var countdownText: String? { countdown?.formatted }
 
     public var label: String {
+        label(language: .current)
+    }
+
+    public func label(language: IslandifyLanguage) -> String {
         switch kind {
         case .d30:
             return "D-30"
@@ -233,18 +241,22 @@ public struct TravelState: Codable, Hashable, Sendable {
         case .daysRemaining:
             return "D-\(calendarDaysRemaining)"
         case .dDay:
-            return "D-DAY"
+            return IslandifyCopy(language: language).travelDday
         case .started:
-            return "여행 시작"
+            return IslandifyCopy(language: language).travelStarted
         }
     }
 
     public var displayValue: String {
+        displayValue(language: .current)
+    }
+
+    public func displayValue(language: IslandifyLanguage) -> String {
         switch kind {
         case .dDay:
-            return countdown?.displayText ?? label
+            return countdown?.displayText(language: language) ?? label(language: language)
         case .started, .d30, .d7, .d1, .daysRemaining:
-            return label
+            return label(language: language)
         }
     }
 

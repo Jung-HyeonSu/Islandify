@@ -8,13 +8,14 @@ enum LiveActivityError: LocalizedError, Equatable {
     case noActiveActivity
 
     var errorDescription: String? {
+        let copy = IslandifyCopy.current
         switch self {
         case .activitiesDisabled:
-            return "Live Activities are disabled. The timer will still remain available in the app."
+            return copy.liveActivitiesDisabled
         case .duplicateActivity:
-            return "An Islandify activity is already running. End it before starting another one."
+            return copy.duplicateLiveActivity
         case .noActiveActivity:
-            return "There is no active Live Activity to update."
+            return copy.noActiveLiveActivityToUpdate
         }
     }
 }

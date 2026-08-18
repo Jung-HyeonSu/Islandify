@@ -45,6 +45,10 @@
 		600000000000000000000036 /* CustomizationDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000012 /* CustomizationDomain.swift */; };
 		600000000000000000000037 /* CustomizationDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000007 /* CustomizationDomainTests.swift */; };
 		600000000000000000000038 /* StabilityDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000008 /* StabilityDomainTests.swift */; };
+		600000000000000000000039 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000013 /* Localization.swift */; };
+		600000000000000000000040 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000013 /* Localization.swift */; };
+		600000000000000000000041 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* InfoPlist.strings */; };
+		600000000000000000000042 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000002 /* InfoPlist.strings */; };
 		E28460213034938E00539E1E /* LocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* LocalStore.swift */; };
 		E28460223034938E00539E1E /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000002 /* PreviewData.swift */; };
 /* End PBXBuildFile section */
@@ -106,6 +110,7 @@
 		C00000000000000000000010 /* RelationshipDomain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelationshipDomain.swift; sourceTree = "<group>"; };
 		C00000000000000000000011 /* RunningDomain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunningDomain.swift; sourceTree = "<group>"; };
 		C00000000000000000000012 /* CustomizationDomain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomizationDomain.swift; sourceTree = "<group>"; };
+		C00000000000000000000013 /* Localization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		D00000000000000000000001 /* LocalStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStoreTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000002 /* PresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentationTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000003 /* TimerDomainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerDomainTests.swift; sourceTree = "<group>"; };
@@ -121,7 +126,32 @@
 		E00000000000000000000005 /* Islandify.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Islandify.entitlements; sourceTree = "<group>"; };
 		E00000000000000000000006 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E00000000000000000000007 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E00000000000000000000008 /* InfoPlist.strings (English) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E00000000000000000000009 /* InfoPlist.strings (Korean) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E00000000000000000000010 /* Widget InfoPlist.strings (English) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E00000000000000000000011 /* Widget InfoPlist.strings (Korean) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXVariantGroup section */
+		F10000000000000000000001 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E00000000000000000000008 /* InfoPlist.strings (English) */,
+				E00000000000000000000009 /* InfoPlist.strings (Korean) */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		F10000000000000000000002 /* Widget InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E00000000000000000000010 /* Widget InfoPlist.strings (English) */,
+				E00000000000000000000011 /* Widget InfoPlist.strings (Korean) */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		500000000000000000000002 /* Frameworks */ = {
@@ -175,6 +205,7 @@
 				B00000000000000000000001 /* IslandifyWidgetBundle.swift */,
 				B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */,
 				E00000000000000000000006 /* Info.plist */,
+				F10000000000000000000002 /* Widget InfoPlist.strings */,
 			);
 			path = IslandifyWidget;
 			sourceTree = "<group>";
@@ -234,6 +265,7 @@
 			children = (
 				E00000000000000000000004 /* Info.plist */,
 				E00000000000000000000005 /* Islandify.entitlements */,
+				F10000000000000000000001 /* InfoPlist.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -252,6 +284,7 @@
 				C00000000000000000000010 /* RelationshipDomain.swift */,
 				C00000000000000000000011 /* RunningDomain.swift */,
 				C00000000000000000000012 /* CustomizationDomain.swift */,
+				C00000000000000000000013 /* Localization.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -358,6 +391,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ko,
 				Base,
 			);
 			mainGroup = 100000000000000000000001;
@@ -377,6 +411,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600000000000000000000041 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,6 +419,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600000000000000000000042 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +460,7 @@
 				600000000000000000000033 /* RunningDomain.swift in Sources */,
 				600000000000000000000035 /* CustomizationFeatureView.swift in Sources */,
 				600000000000000000000036 /* CustomizationDomain.swift in Sources */,
+				600000000000000000000039 /* Localization.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,6 +476,7 @@
 				600000000000000000000015 /* TimeFormatting.swift in Sources */,
 				600000000000000000000016 /* IslandifyActivityAttributes.swift in Sources */,
 				600000000000000000000017 /* IslandifyLiveActivityWidget.swift in Sources */,
+				600000000000000000000040 /* Localization.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

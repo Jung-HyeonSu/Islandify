@@ -8,8 +8,8 @@ struct IslandifyWidget: Widget {
         StaticConfiguration(kind: kind, provider: IslandifyWidgetProvider()) { entry in
             IslandifyWidgetView(entry: entry)
         }
-        .configurationDisplayName("Islandify")
-        .description("A glanceable view of your current activity.")
+        .configurationDisplayName(IslandifyCopy.current.appName)
+        .description(IslandifyCopy.current.widgetDescription)
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
@@ -37,16 +37,17 @@ struct IslandifyWidgetView: View {
     let entry: IslandifyWidgetEntry
 
     var body: some View {
+        let copy = IslandifyCopy.current
         VStack(alignment: .leading, spacing: 8) {
-            Text("Islandify")
+            Text(copy.appName)
                 .font(.headline)
-            Text("No active activity")
+            Text(copy.noActiveActivity)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .padding()
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Islandify, no active activity")
+        .accessibilityLabel("\(copy.appName), \(copy.noActiveActivity)")
     }
 }
 

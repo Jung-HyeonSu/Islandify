@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RelationshipFeatureView: View {
     @EnvironmentObject private var model: IslandifyAppModel
-    @State private var name = "Our days"
+    @State private var name = IslandifyCopy.current.relationshipExampleName
     @State private var nickname = ""
     @State private var startDate = Date.now.addingTimeInterval(-30 * 24 * 60 * 60)
     @State private var timeZoneIdentifier = TimeZone.current.identifier
@@ -35,53 +35,54 @@ struct RelationshipFeatureView: View {
     }
 
     private var relationshipForm: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label("Together", systemImage: "heart.fill")
+        let copy = IslandifyCopy.current
+        return VStack(alignment: .leading, spacing: 16) {
+            Label(copy.relationship, systemImage: "heart.fill")
                 .font(.title2.weight(.semibold))
 
-            TextField("Anniversary name", text: $name)
+            TextField(copy.anniversaryName, text: $name)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Anniversary name")
+                .accessibilityLabel(copy.anniversaryName)
 
-            TextField("Nickname", text: $nickname)
+            TextField(copy.nickname, text: $nickname)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Nickname")
+                .accessibilityLabel(copy.nickname)
 
-            DatePicker("Start date", selection: $startDate, in: ...Date.now, displayedComponents: [.date])
-                .accessibilityLabel("Relationship start date")
+            DatePicker(copy.startDate, selection: $startDate, in: ...Date.now, displayedComponents: [.date])
+                .accessibilityLabel(copy.relationshipStartDate)
 
-            Picker("Counting", selection: $countingMode) {
-                Text("D+0 on start date").tag(RelationshipCountingMode.dPlus0)
-                Text("D+1 on start date").tag(RelationshipCountingMode.dPlus1)
+            Picker(copy.relationshipCounting, selection: $countingMode) {
+                Text(copy.dPlus0OnStartDate).tag(RelationshipCountingMode.dPlus0)
+                Text(copy.dPlus1OnStartDate).tag(RelationshipCountingMode.dPlus1)
             }
 
             HStack {
-                Label("Timezone", systemImage: "globe")
+                Label(copy.timezone, systemImage: "globe")
                 Spacer()
-                TextField("Asia/Seoul", text: $timeZoneIdentifier)
+                TextField(copy.timezoneExample, text: $timeZoneIdentifier)
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.roundedBorder)
                     .frame(maxWidth: 190)
-                    .accessibilityLabel("Relationship timezone")
+                    .accessibilityLabel(copy.relationshipTimezone)
             }
 
             HStack {
-                Label("Icon", systemImage: "face.smiling")
+                Label(copy.icon, systemImage: "face.smiling")
                 Spacer()
                 TextField("❤️", text: $iconText)
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 72)
-                    .accessibilityLabel("Relationship emoji")
+                    .accessibilityLabel(copy.relationshipEmoji)
             }
 
-            Picker("Theme", selection: $theme) {
+            Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(theme.displayName).tag(theme)
+                    Text(copy.themeName(theme)).tag(theme)
                 }
             }
 
-            Toggle("Milestone notifications", isOn: $notificationsEnabled)
+            Toggle(copy.milestoneNotifications, isOn: $notificationsEnabled)
 
             Button {
                 Task {
@@ -97,18 +98,19 @@ struct RelationshipFeatureView: View {
                     )
                 }
             } label: {
-                Label("Start D+", systemImage: "play.fill")
+                Label(copy.startRelationship, systemImage: "play.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .disabled(model.activeTimer != nil || model.activeTravel != nil)
-            .accessibilityHint("Starts the relationship counter and optionally schedules local milestone notifications")
+            .accessibilityHint(copy.startRelationshipHint)
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
 
     private func activeRelationshipCard(_ configuration: RelationshipConfiguration) -> some View {
+        let copy = IslandifyCopy.current
         let snapshot = RelationshipCalculator.snapshot(for: configuration, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top) {
@@ -133,26 +135,26 @@ struct RelationshipFeatureView: View {
                 .lineLimit(2)
 
             if let dayMilestone = snapshot.nextDayMilestone {
-                Text("Next: \(dayMilestone.title)")
+                Text(copy.nextMilestone(dayMilestone.title))
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
             if let annualMilestone = snapshot.nextAnnualMilestone {
-                Text("Annual: \(annualMilestone.title)")
+                Text(copy.annualMilestoneLabel(annualMilestone.title))
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
             HStack {
-                Text("Timezone: \(configuration.timeZoneIdentifier)")
+                Text("\(copy.timezone): \(configuration.timeZoneIdentifier)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Menu {
-                    Button("End counter", role: .destructive) { Task { await model.endRelationship() } }
+                    Button(copy.endCounter, role: .destructive) { Task { await model.endRelationship() } }
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .accessibilityLabel("More relationship actions")
+                        .accessibilityLabel(copy.moreRelationshipActions)
                 }
             }
         }

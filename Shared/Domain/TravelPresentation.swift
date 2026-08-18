@@ -4,14 +4,16 @@ public extension TravelCalculator {
     static func presentation(
         for configuration: TravelConfiguration,
         at date: Date,
-        calendar: Calendar? = nil
+        calendar: Calendar? = nil,
+        language: IslandifyLanguage = .current
     ) -> ActivityPresentationState {
+        let copy = IslandifyCopy(language: language)
         let configuredCalendar = calendar ?? configuration.calendar(basedOn: IslandifyDateMath.calendar(timeZoneIdentifier: configuration.timeZoneIdentifier))
         let state = TravelCalculator.state(for: configuration, at: date, calendar: configuredCalendar)
         let secondary: String?
         switch state.kind {
         case .started:
-            secondary = "여행 시작"
+            secondary = copy.travelStarted
         case .dDay:
             secondary = configuration.destination
         case .d30, .d7, .d1, .daysRemaining:
@@ -21,9 +23,9 @@ public extension TravelCalculator {
         let primaryValue: String
         switch configuration.presentation.numberFormat {
         case .duration, .compactDuration:
-            primaryValue = state.countdown?.formatted ?? state.displayValue
+            primaryValue = state.countdown?.formatted ?? state.displayValue(language: language)
         default:
-            primaryValue = state.displayValue
+            primaryValue = state.displayValue(language: language)
         }
 
         return ActivityPresentationState(
@@ -39,9 +41,13 @@ public extension TravelCalculator {
             progressStyle: configuration.presentation.progressStyle,
             compactLeading: configuration.presentation.icon.value,
             compactTrailing: primaryValue,
-            expandedDetails: [configuration.destination, state.label, state.countdownText ?? ""].filter { !$0.isEmpty },
+            expandedDetails: [configuration.destination, state.label(language: language), state.countdownText ?? ""].filter { !$0.isEmpty },
             completionMessage: configuration.presentation.completionMessage,
-            accessibilityLabel: "\(configuration.tripName), \(configuration.destination), \(state.displayValue)",
+            accessibilityLabel: copy.travelAccessibility(
+                tripName: configuration.tripName,
+                destination: configuration.destination,
+                value: state.displayValue(language: language)
+            ),
             staleDate: configuration.departureDate,
             countdownEndDate: date < configuration.departureDate ? configuration.departureDate : nil
         )

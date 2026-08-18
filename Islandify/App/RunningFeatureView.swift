@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RunningFeatureView: View {
     @EnvironmentObject private var model: IslandifyAppModel
-    @State private var name = "Morning run"
+    @State private var name = IslandifyCopy.current.runExampleName
     @State private var iconText = "🏃"
     @State private var theme: IslandifyTheme = .runningGreen
     @State private var memo = ""
@@ -32,50 +32,52 @@ struct RunningFeatureView: View {
     }
 
     private var runForm: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label("Running", systemImage: "figure.run")
+        let copy = IslandifyCopy.current
+        return VStack(alignment: .leading, spacing: 16) {
+            Label(copy.running, systemImage: "figure.run")
                 .font(.title2.weight(.semibold))
 
-            Text("Location is requested only when you start a run. If access is denied, elapsed time still works as a time-only run.")
+            Text(copy.runningFormDescription)
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            TextField("Run name", text: $name)
+            TextField(copy.runName, text: $name)
                 .textFieldStyle(.roundedBorder)
-                .accessibilityLabel("Run name")
+                .accessibilityLabel(copy.runName)
 
             HStack {
-                Label("Icon", systemImage: "face.smiling")
+                Label(copy.icon, systemImage: "face.smiling")
                 Spacer()
                 TextField("🏃", text: $iconText)
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 72)
-                    .accessibilityLabel("Run emoji")
+                    .accessibilityLabel(copy.runEmoji)
             }
 
-            Picker("Theme", selection: $theme) {
+            Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(theme.displayName).tag(theme)
+                    Text(copy.themeName(theme)).tag(theme)
                 }
             }
 
             Button {
                 Task { await model.startRun(name: name, theme: theme, iconText: iconText) }
             } label: {
-                Label("Start run", systemImage: "play.fill")
+                Label(copy.startRun, systemImage: "play.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .disabled(model.activeTimer != nil || model.activeTravel != nil || model.activeRelationship != nil)
-            .accessibilityHint("Starts a run and requests location access")
+            .accessibilityHint(copy.startRunHint)
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
 
     private func activeRunCard(_ state: RunningState) -> some View {
+        let copy = IslandifyCopy.current
         let snapshot = RunningCalculator.snapshot(for: state, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top) {
@@ -83,7 +85,7 @@ struct RunningFeatureView: View {
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
                 Spacer()
-                Text(state.phase.rawValue.capitalized)
+                Text(copy.runningPhaseLabel(state.phase.rawValue))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
             }
@@ -99,9 +101,9 @@ struct RunningFeatureView: View {
             }
 
             HStack {
-                metric(title: "Current pace", value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.currentPaceSecondsPerKilometer))
-                metric(title: "Average pace", value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.averagePaceSecondsPerKilometer))
-                metric(title: "Calories", value: "\(Int(snapshot.calories.rounded())) kcal")
+                metric(title: copy.currentPace, value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.currentPaceSecondsPerKilometer))
+                metric(title: copy.averagePace, value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.averagePaceSecondsPerKilometer))
+                metric(title: copy.calories, value: copy.caloriesValue(Int(snapshot.calories.rounded())))
             }
 
             Text(locationMessage)
@@ -111,16 +113,16 @@ struct RunningFeatureView: View {
 
             HStack {
                 if state.phase == .active {
-                    Button("Pause") { Task { await model.pauseRun() } }
+                    Button(copy.pause) { Task { await model.pauseRun() } }
                         .buttonStyle(.borderedProminent)
                 } else {
-                    Button("Resume") { Task { await model.resumeRun() } }
+                    Button(copy.resume) { Task { await model.resumeRun() } }
                         .buttonStyle(.borderedProminent)
                 }
-                TextField("Optional memo", text: $memo)
+                TextField(copy.optionalMemo, text: $memo)
                     .textFieldStyle(.roundedBorder)
-                    .accessibilityLabel("Optional run memo")
-                Button("End", role: .destructive) {
+                    .accessibilityLabel(copy.optionalRunMemo)
+                Button(copy.end, role: .destructive) {
                     Task { await model.endRun(memo: memo.isEmpty ? nil : memo) }
                 }
                 .buttonStyle(.bordered)
@@ -133,26 +135,28 @@ struct RunningFeatureView: View {
     }
 
     private var locationMessage: String {
+        let copy = IslandifyCopy.current
         switch model.locationAuthorization {
         case .authorizedWhenInUse, .authorizedAlways:
-            return "GPS distance is active."
+            return copy.gpsDistanceActive
         case .notDetermined:
-            return "Waiting for location permission…"
+            return copy.waitingForLocationPermission
         case .denied:
-            return "Location denied — recording time only."
+            return copy.locationDeniedTimeOnly
         case .restricted:
-            return "Location restricted — recording time only."
+            return copy.locationRestrictedTimeOnly
         case .unavailable:
-            return "Location unavailable — recording time only."
+            return copy.locationUnavailableTimeOnly
         }
     }
 
     private var history: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Recent runs")
+        let copy = IslandifyCopy.current
+        return VStack(alignment: .leading, spacing: 10) {
+            Text(copy.recentRuns)
                 .font(.headline)
             if model.runRecords.isEmpty {
-                Text("Completed runs will appear here.")
+                Text(copy.completedRunsPlaceholder)
                     .font(.callout)
                     .foregroundStyle(.secondary)
             } else {
@@ -165,7 +169,7 @@ struct RunningFeatureView: View {
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        Text("\(Int(record.calories.rounded())) kcal")
+                        Text(copy.caloriesValue(Int(record.calories.rounded())))
                             .font(.caption.monospacedDigit())
                     }
                     .accessibilityElement(children: .combine)
