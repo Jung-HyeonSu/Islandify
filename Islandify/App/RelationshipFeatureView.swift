@@ -12,8 +12,16 @@ struct RelationshipFeatureView: View {
     @State private var notificationsEnabled = true
 
     var body: some View {
-        ScrollView {
+        let copy = IslandifyCopy.current
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
+                IslandifyPageHeader(
+                    eyebrow: copy.relationship,
+                    title: model.activeRelationship?.name ?? copy.relationshipExampleName,
+                    subtitle: IslandifyLanguage.current == .korean ? "소중한 날을 매일 선명하게." : "Keep the days that matter close.",
+                    symbolName: "heart.fill"
+                )
+
                 if let relationship = model.activeRelationship {
                     activeRelationshipCard(relationship)
                 } else {
@@ -21,89 +29,103 @@ struct RelationshipFeatureView: View {
                 }
 
                 if let message = model.message {
-                    Label(message, systemImage: "info.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    IslandifyMessageBanner(message: message)
                 }
             }
-            .padding()
-            .frame(maxWidth: 600)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 32)
+            .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
         .islandifyBrightPageBackground()
+        .tint(IslandifyBrightPalette.pink)
         .onAppear {
             model.refresh()
             loadSavedIcon()
         }
+        .accessibilityIdentifier("relationship-feature")
     }
 
     private var relationshipForm: some View {
         let copy = IslandifyCopy.current
-        return VStack(alignment: .leading, spacing: 16) {
-            Label(copy.relationship, systemImage: "heart.fill")
-                .font(.title2.weight(.semibold))
+        return IslandifyBrightCard(padding: 20, cornerRadius: 30) {
+            VStack(alignment: .leading, spacing: 15) {
+                Text(copy.relationship)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(IslandifyBrightPalette.text)
 
-            TextField(copy.anniversaryName, text: $name)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.anniversaryName)
+                TextField(copy.anniversaryName, text: $name)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.anniversaryName)
 
-            TextField(copy.nickname, text: $nickname)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.nickname)
+                TextField(copy.nickname, text: $nickname)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.nickname)
 
-            DatePicker(copy.startDate, selection: $startDate, in: ...Date.now, displayedComponents: [.date])
-                .accessibilityLabel(copy.relationshipStartDate)
+                DatePicker(copy.startDate, selection: $startDate, in: ...Date.now, displayedComponents: [.date])
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(IslandifyBrightPalette.surfaceSoft, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .accessibilityLabel(copy.relationshipStartDate)
 
-            Picker(copy.relationshipCounting, selection: $countingMode) {
-                Text(copy.dPlus0OnStartDate).tag(RelationshipCountingMode.dPlus0)
-                Text(copy.dPlus1OnStartDate).tag(RelationshipCountingMode.dPlus1)
-            }
+                IslandifyPickerRow(
+                    title: copy.relationshipCounting,
+                    selection: $countingMode,
+                    options: [
+                        IslandifyPickerOption(value: RelationshipCountingMode.dPlus0, title: copy.dPlus0OnStartDate),
+                        IslandifyPickerOption(value: RelationshipCountingMode.dPlus1, title: copy.dPlus1OnStartDate)
+                    ]
+                )
 
-            HStack {
-                Label(copy.timezone, systemImage: "globe")
-                Spacer()
-                TextField(copy.timezoneExample, text: $timeZoneIdentifier)
-                    .multilineTextAlignment(.trailing)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: 190)
-                    .accessibilityLabel(copy.relationshipTimezone)
-            }
-
-            IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "❤️")
-                .accessibilityLabel(copy.relationshipEmoji)
-
-            Picker(copy.theme, selection: $theme) {
-                ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(copy.themeName(theme)).tag(theme)
+                HStack(spacing: 12) {
+                    Image(systemName: "globe")
+                        .foregroundStyle(IslandifyBrightPalette.pink)
+                    Text(copy.timezone)
+                        .font(.subheadline.weight(.medium))
+                    Spacer()
+                    TextField(copy.timezoneExample, text: $timeZoneIdentifier)
+                        .textFieldStyle(.plain)
+                        .multilineTextAlignment(.trailing)
+                        .frame(maxWidth: 180)
+                        .accessibilityLabel(copy.relationshipTimezone)
                 }
-            }
+                .islandifyInputStyle()
 
-            Toggle(copy.milestoneNotifications, isOn: $notificationsEnabled)
+                IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "❤️")
+                    .accessibilityLabel(copy.relationshipEmoji)
 
-            Button {
-                Task {
-                    await model.startRelationship(
-                        name: name,
-                        nickname: nickname,
-                        startDate: startDate,
-                        timeZoneIdentifier: timeZoneIdentifier,
-                        iconText: iconText,
-                        theme: theme,
-                        countingMode: countingMode,
-                        notificationsEnabled: notificationsEnabled
-                    )
+                IslandifyPickerRow(
+                    title: copy.theme,
+                    selection: $theme,
+                    options: IslandifyTheme.allCases.map { IslandifyPickerOption(value: $0, title: copy.themeName($0)) }
+                )
+
+                Toggle(copy.milestoneNotifications, isOn: $notificationsEnabled)
+                    .font(.subheadline.weight(.medium))
+                    .tint(IslandifyBrightPalette.pink)
+
+                IslandifyGradientButton(title: copy.startRelationship) {
+                    Task {
+                        await model.startRelationship(
+                            name: name,
+                            nickname: nickname,
+                            startDate: startDate,
+                            timeZoneIdentifier: timeZoneIdentifier,
+                            iconText: iconText,
+                            theme: theme,
+                            countingMode: countingMode,
+                            notificationsEnabled: notificationsEnabled
+                        )
+                    }
                 }
-            } label: {
-                Label(copy.startRelationship, systemImage: "play.fill")
-                    .frame(maxWidth: .infinity)
+                .disabled(model.activeTimer != nil || model.activeTravel != nil)
+                .accessibilityHint(copy.startRelationshipHint)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(model.activeTimer != nil || model.activeTravel != nil)
-            .accessibilityHint(copy.startRelationshipHint)
         }
-        .padding()
-        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private func loadSavedIcon() {
@@ -117,71 +139,62 @@ struct RelationshipFeatureView: View {
         let copy = IslandifyCopy.current
         let snapshot = RelationshipCalculator.snapshot(for: configuration, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top, spacing: 10) {
+            HStack(spacing: 10) {
                 IslandifyAppIconView(icon: configuration.presentation.icon)
                     .font(.title3)
-                    .frame(width: 30, height: 30)
-                Text(configuration.name)
-                    .font(.title2.weight(.semibold))
-                    .lineLimit(1)
-                Spacer()
-                Text(configuration.countingMode == .dPlus0 ? "D+0" : "D+1")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-            }
-
-            Text("D+\(snapshot.dayCount)")
-                .font(.system(size: 48, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
-                .accessibilityLabel(snapshot.message)
-
-            Text(snapshot.message)
-                .font(.headline)
-                .lineLimit(2)
-
-            if let dayMilestone = snapshot.nextDayMilestone {
-                Text(copy.nextMilestone(dayMilestone.title))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-            if let annualMilestone = snapshot.nextAnnualMilestone {
-                Text(copy.annualMilestoneLabel(annualMilestone.title))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-
-            HStack {
-                Text("\(copy.timezone): \(configuration.timeZoneIdentifier)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .frame(width: 38, height: 38)
+                    .background(IslandifyBrightPalette.pink.opacity(0.12), in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(configuration.name)
+                        .font(.headline.weight(.semibold))
+                    Text(configuration.nickname.isEmpty ? copy.relationship : configuration.nickname)
+                        .font(.caption)
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                }
                 Spacer()
                 Menu {
                     Button(copy.endCounter, role: .destructive) { Task { await model.endRelationship() } }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .accessibilityLabel(copy.moreRelationshipActions)
+                    Image(systemName: "ellipsis")
+                        .font(.body.weight(.bold))
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                        .frame(width: 38, height: 38)
+                        .background(IslandifyBrightPalette.surfaceSoft, in: Circle())
                 }
+                .accessibilityLabel(copy.moreRelationshipActions)
+            }
+
+            IslandifyHeroCard(
+                eyebrow: copy.relationship,
+                value: "D+\(snapshot.dayCount)",
+                detail: snapshot.message
+            )
+            .accessibilityLabel(snapshot.message)
+
+            IslandifyBrightCard(padding: 16, cornerRadius: 22) {
+                VStack(alignment: .leading, spacing: 8) {
+                    if let dayMilestone = snapshot.nextDayMilestone {
+                        Label(copy.nextMilestone(dayMilestone.title), systemImage: "sparkles")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(IslandifyBrightPalette.pink)
+                    }
+                    if let annualMilestone = snapshot.nextAnnualMilestone {
+                        Text(copy.annualMilestoneLabel(annualMilestone.title))
+                            .font(.caption)
+                            .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                    }
+                    Text("\(copy.timezone): \(configuration.timeZoneIdentifier)")
+                        .font(.caption)
+                        .foregroundStyle(IslandifyBrightPalette.mutedText)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding()
-        .islandifyBrightCardBackground(cornerRadius: 24)
         .foregroundStyle(IslandifyBrightPalette.text)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(snapshot.message)
     }
 }
 
-private extension Color {
-    init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var value: UInt64 = 0
-        Scanner(string: cleaned).scanHexInt64(&value)
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255
-        )
-    }
+#Preview {
+    RelationshipFeatureView()
+        .environmentObject(IslandifyAppModel())
 }

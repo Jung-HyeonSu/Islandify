@@ -8,129 +8,149 @@ struct CustomizationFeatureView: View {
     @State private var validationMessage: String?
 
     var body: some View {
-        ScrollView {
+        let copy = IslandifyCopy.current
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
+                IslandifyPageHeader(
+                    eyebrow: copy.style,
+                    title: copy.customize,
+                    subtitle: copy.customizationDescription,
+                    symbolName: "sparkles"
+                )
                 editor
                 preview
                 if let validationMessage {
-                    Label(validationMessage, systemImage: "exclamationmark.triangle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    IslandifyMessageBanner(message: validationMessage)
                 }
             }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 32)
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
         }
         .islandifyBrightPageBackground()
-        .tint(IslandifyBrightPalette.accent)
+        .tint(IslandifyBrightPalette.lavender)
         .onAppear { loadConfiguration() }
         .onChange(of: kind) { _ in loadConfiguration() }
+        .accessibilityIdentifier("customization-feature")
     }
 
     private var editor: some View {
         let copy = IslandifyCopy.current
-        return VStack(alignment: .leading, spacing: 14) {
-            Label(copy.customize, systemImage: "slider.horizontal.3")
-                .font(.title2.weight(.semibold))
+        return IslandifyBrightCard(padding: 20, cornerRadius: 30) {
+            VStack(alignment: .leading, spacing: 14) {
+                IslandifyPickerRow(
+                    title: copy.activity,
+                    selection: $kind,
+                    options: ActivityKind.allCases.map { IslandifyPickerOption(value: $0, title: copy.activityName($0)) }
+                )
 
-            Text(copy.customizationDescription)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                TextField(copy.title, text: $configuration.title)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.liveActivityTitle)
+                TextField(copy.shortDescription, text: $configuration.description)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.liveActivityDescription)
 
-            Picker(copy.activity, selection: $kind) {
-                ForEach(ActivityKind.allCases, id: \.self) { kind in
-                    Text(copy.activityName(kind)).tag(kind)
-                }
-            }
+                IslandifyEmojiPickerField(selection: iconSelection, title: copy.iconOrEmoji, placeholder: emojiPlaceholder)
+                    .accessibilityLabel(copy.liveActivityIconOrEmoji)
 
-            TextField(copy.title, text: $configuration.title)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.liveActivityTitle)
-            TextField(copy.shortDescription, text: $configuration.description)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.liveActivityDescription)
+                IslandifyPickerRow(
+                    title: copy.themeOrColor,
+                    selection: $configuration.theme,
+                    options: IslandifyTheme.allCases.map { IslandifyPickerOption(value: $0, title: copy.themeName($0)) }
+                )
+                IslandifyPickerRow(
+                    title: copy.numberFormat,
+                    selection: $configuration.numberFormat,
+                    options: NumberFormat.allCases.map { IslandifyPickerOption(value: $0, title: copy.numberFormatName($0)) }
+                )
+                IslandifyPickerRow(
+                    title: copy.progress,
+                    selection: $configuration.progressStyle,
+                    options: ProgressStyle.allCases.map { IslandifyPickerOption(value: $0, title: copy.progressStyleName($0)) }
+                )
+                IslandifyPickerRow(
+                    title: copy.alignment,
+                    selection: $configuration.alignment,
+                    options: SlotAlignment.allCases.map { IslandifyPickerOption(value: $0, title: copy.alignmentName($0)) }
+                )
 
-            IslandifyEmojiPickerField(selection: iconSelection, title: copy.iconOrEmoji, placeholder: emojiPlaceholder)
-                .accessibilityLabel(copy.liveActivityIconOrEmoji)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(copy.compactLeadingSlot)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(IslandifyBrightPalette.text)
+                    IslandifyPickerRow(
+                        title: copy.compactLeadingSlot,
+                        selection: $configuration.compactLeading,
+                        options: PresentationSlot.allCases.map { IslandifyPickerOption(value: $0, title: copy.slotName($0)) }
+                    )
+                    IslandifyPickerRow(
+                        title: copy.compactTrailingSlot,
+                        selection: $configuration.compactTrailing,
+                        options: PresentationSlot.allCases.map { IslandifyPickerOption(value: $0, title: copy.slotName($0)) }
+                    )
+                }
 
-            Picker(copy.themeOrColor, selection: $configuration.theme) {
-                ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(copy.themeName(theme)).tag(theme)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(copy.expandedDetails)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(IslandifyBrightPalette.text)
+                    ForEach(0..<3, id: \.self) { index in
+                        IslandifyPickerRow(
+                            title: copy.detail(index + 1),
+                            selection: Binding(
+                                get: { expandedSlot(at: index) },
+                                set: { updateExpandedSlot(at: index, value: $0) }
+                            ),
+                            options: PresentationSlot.allCases.map { IslandifyPickerOption(value: $0, title: copy.slotName($0)) }
+                        )
+                    }
                 }
-            }
-            Picker(copy.numberFormat, selection: $configuration.numberFormat) {
-                ForEach(NumberFormat.allCases, id: \.self) { format in
-                    Text(copy.numberFormatName(format)).tag(format)
-                }
-            }
-            Picker(copy.progress, selection: $configuration.progressStyle) {
-                ForEach(ProgressStyle.allCases, id: \.self) { style in
-                    Text(copy.progressStyleName(style)).tag(style)
-                }
-            }
-            Picker(copy.alignment, selection: $configuration.alignment) {
-                ForEach(SlotAlignment.allCases, id: \.self) { alignment in
-                    Text(copy.alignmentName(alignment)).tag(alignment)
-                }
-            }
-            Picker(copy.compactLeadingSlot, selection: $configuration.compactLeading) {
-                ForEach(PresentationSlot.allCases, id: \.self) { slot in
-                    Text(copy.slotName(slot)).tag(slot)
-                }
-            }
-            Picker(copy.compactTrailingSlot, selection: $configuration.compactTrailing) {
-                ForEach(PresentationSlot.allCases, id: \.self) { slot in
-                    Text(copy.slotName(slot)).tag(slot)
-                }
-            }
 
-            Text(copy.expandedDetails)
-                .font(.headline)
-            ForEach(0..<3, id: \.self) { index in
-                Picker(copy.detail(index + 1), selection: Binding(
-                    get: { expandedSlot(at: index) },
-                    set: { updateExpandedSlot(at: index, value: $0) }
-                )) {
-                    ForEach(PresentationSlot.allCases, id: \.self) { slot in
-                        Text(copy.slotName(slot)).tag(slot)
+                TextField(copy.completionMessage, text: $configuration.completionMessage)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.completionMessage)
+
+                IslandifyGradientButton(title: copy.saveLayout) {
+                    let errors = PresentationComposer.validate(configuration)
+                    if errors.isEmpty {
+                        model.saveComposition(configuration, for: kind)
+                        validationMessage = nil
+                    } else {
+                        validationMessage = errors.map { copy.validationMessage(code: String(describing: $0)) }.joined(separator: ", ")
                     }
                 }
             }
-
-            TextField(copy.completionMessage, text: $configuration.completionMessage)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.completionMessage)
-
-            Button {
-                let errors = PresentationComposer.validate(configuration)
-                if errors.isEmpty {
-                    model.saveComposition(configuration, for: kind)
-                    validationMessage = nil
-                } else {
-                    validationMessage = errors.map { copy.validationMessage(code: String(describing: $0)) }.joined(separator: ", ")
-                }
-            } label: {
-                Label(copy.saveLayout, systemImage: "square.and.arrow.down")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
         }
-        .padding()
-        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private var preview: some View {
         let copy = IslandifyCopy.current
         let state = PresentationComposer.previewState(for: kind, configuration: configuration)
-        return VStack(alignment: .leading, spacing: 12) {
-            Text(copy.previewAllSurfaces)
-                .font(.headline)
-            ForEach(ActivitySurface.allCases, id: \.self) { surface in
-                let rendered = ActivityPresentationRenderer.render(state, on: surface)
-                PreviewSurfaceView(rendered: rendered, state: state)
+        return IslandifyBrightCard(padding: 20, cornerRadius: 30) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(copy.previewAllSurfaces)
+                            .font(.headline.weight(.semibold))
+                        Text(IslandifyLanguage.current == .korean ? "시스템 슬롯에서 어떻게 보이는지 확인하세요." : "Check every system surface before saving.")
+                            .font(.caption)
+                            .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                    }
+                    Spacer()
+                    Image(systemName: "eye")
+                        .foregroundStyle(IslandifyBrightPalette.lavender)
+                }
+
+                ForEach(ActivitySurface.allCases, id: \.self) { surface in
+                    let rendered = ActivityPresentationRenderer.render(state, on: surface)
+                    PreviewSurfaceView(rendered: rendered, state: state)
+                }
             }
         }
     }
@@ -182,10 +202,15 @@ private struct PreviewSurfaceView: View {
 
     var body: some View {
         let copy = IslandifyCopy.current
-        VStack(alignment: .leading, spacing: 6) {
-            Text(copy.surfaceName(rendered.surface))
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(copy.surfaceName(rendered.surface))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                Spacer()
+                Text(state.icon.value)
+                    .font(.caption)
+            }
             HStack(spacing: 8) {
                 if let leadingText = rendered.leadingText {
                     Text(leadingText).lineLimit(1)
@@ -204,25 +229,27 @@ private struct PreviewSurfaceView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
+            if !rendered.details.isEmpty {
+                Text(rendered.details.joined(separator: " · "))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
         }
-        .padding(12)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(hex: state.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 14))
-        .foregroundStyle(Color(hex: state.palette.foregroundHex))
+        .background(IslandifyBrightPalette.surfaceSoft, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(IslandifyBrightPalette.line, lineWidth: 1)
+        }
+        .foregroundStyle(IslandifyBrightPalette.text)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(rendered.accessibilityLabel)
     }
 }
 
-private extension Color {
-    init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var value: UInt64 = 0
-        Scanner(string: cleaned).scanHexInt64(&value)
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255
-        )
-    }
+#Preview {
+    CustomizationFeatureView()
+        .environmentObject(IslandifyAppModel())
 }

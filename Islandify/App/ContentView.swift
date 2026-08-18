@@ -11,7 +11,7 @@ struct ContentView: View {
         NavigationStack {
             TabView(selection: $selectedTab) {
                 HomeDashboardView(selectedTab: $selectedTab, showStyle: $showStyle)
-                    .tabItem { Label(homeTabLabel, systemImage: "circle.grid.2x2") }
+                    .tabItem { Label(homeTabLabel, systemImage: "house.fill") }
                     .tag(IslandifyTab.home)
                 TimerFeatureView()
                     .tabItem { Label(copy.timer, systemImage: "timer") }
@@ -27,8 +27,10 @@ struct ContentView: View {
                     .tag(IslandifyTab.running)
             }
             .tint(IslandifyBrightPalette.accent)
-            .toolbarBackground(IslandifyBrightPalette.background, for: .tabBar)
+            .toolbarBackground(IslandifyBrightPalette.surface, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
+            .toolbarColorScheme(.light, for: .tabBar)
+            .background(IslandifyBrightPalette.background.ignoresSafeArea())
         }
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showStyle) {
@@ -36,7 +38,10 @@ struct ContentView: View {
                 CustomizationFeatureView()
                     .navigationTitle(copy.style)
                     .navigationBarTitleDisplayMode(.inline)
+                    .toolbarBackground(IslandifyBrightPalette.surface, for: .navigationBar)
+                    .toolbarBackground(.visible, for: .navigationBar)
             }
+            .tint(IslandifyBrightPalette.lavender)
         }
         .onChange(of: scenePhase) { phase in
             if phase == .active {

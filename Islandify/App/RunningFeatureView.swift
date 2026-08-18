@@ -8,8 +8,16 @@ struct RunningFeatureView: View {
     @State private var memo = ""
 
     var body: some View {
-        ScrollView {
+        let copy = IslandifyCopy.current
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
+                IslandifyPageHeader(
+                    eyebrow: copy.running,
+                    title: model.activeRun?.configuration.name ?? copy.runExampleName,
+                    subtitle: copy.runningDescription,
+                    symbolName: "figure.run"
+                )
+
                 if let run = model.activeRun {
                     activeRunCard(run)
                 } else {
@@ -18,59 +26,53 @@ struct RunningFeatureView: View {
                 }
 
                 if let message = model.message {
-                    Label(message, systemImage: "info.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    IslandifyMessageBanner(message: message)
                 }
             }
-            .padding()
-            .frame(maxWidth: 600)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 32)
+            .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
         .islandifyBrightPageBackground()
+        .tint(IslandifyBrightPalette.mint)
         .onAppear {
             model.refresh()
             loadSavedIcon()
         }
+        .accessibilityIdentifier("running-feature")
     }
 
     private var runForm: some View {
         let copy = IslandifyCopy.current
-        return VStack(alignment: .leading, spacing: 16) {
-            Label(copy.running, systemImage: "figure.run")
-                .font(.title2.weight(.semibold))
+        return IslandifyBrightCard(padding: 20, cornerRadius: 30) {
+            VStack(alignment: .leading, spacing: 15) {
+                Text(copy.running)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(IslandifyBrightPalette.text)
 
-            Text(copy.runningFormDescription)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                TextField(copy.runName, text: $name)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.runName)
 
-            TextField(copy.runName, text: $name)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.runName)
+                IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "🏃")
+                    .accessibilityLabel(copy.runEmoji)
 
-            IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "🏃")
-                .accessibilityLabel(copy.runEmoji)
+                IslandifyPickerRow(
+                    title: copy.theme,
+                    selection: $theme,
+                    options: IslandifyTheme.allCases.map { IslandifyPickerOption(value: $0, title: copy.themeName($0)) }
+                )
 
-            Picker(copy.theme, selection: $theme) {
-                ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(copy.themeName(theme)).tag(theme)
+                IslandifyGradientButton(title: copy.startRun) {
+                    Task { await model.startRun(name: name, theme: theme, iconText: iconText) }
                 }
+                .disabled(model.activeTimer != nil || model.activeTravel != nil || model.activeRelationship != nil)
+                .accessibilityHint(copy.startRunHint)
             }
-
-            Button {
-                Task { await model.startRun(name: name, theme: theme, iconText: iconText) }
-            } label: {
-                Label(copy.startRun, systemImage: "play.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(model.activeTimer != nil || model.activeTravel != nil || model.activeRelationship != nil)
-            .accessibilityHint(copy.startRunHint)
         }
-        .padding()
-        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private func loadSavedIcon() {
@@ -84,61 +86,70 @@ struct RunningFeatureView: View {
         let copy = IslandifyCopy.current
         let snapshot = RunningCalculator.snapshot(for: state, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top, spacing: 10) {
+            HStack(spacing: 10) {
                 IslandifyAppIconView(icon: state.configuration.presentation.icon)
                     .font(.title3)
-                    .frame(width: 30, height: 30)
-                Text(state.configuration.name)
-                    .font(.title2.weight(.semibold))
-                    .lineLimit(1)
-                Spacer()
-                Text(copy.runningPhaseLabel(state.phase.rawValue))
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-            }
-
-            HStack(alignment: .firstTextBaseline) {
-                Text(IslandifyTimeFormatter.distance(kilometers: snapshot.distanceKilometers))
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-                Spacer()
-                Text(IslandifyTimeFormatter.duration(snapshot.elapsed))
-                    .font(.title3.monospacedDigit().weight(.semibold))
-            }
-
-            HStack {
-                metric(title: copy.currentPace, value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.currentPaceSecondsPerKilometer))
-                metric(title: copy.averagePace, value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.averagePaceSecondsPerKilometer))
-                metric(title: copy.calories, value: copy.caloriesValue(Int(snapshot.calories.rounded())))
-            }
-
-            Text(locationMessage)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack {
-                if state.phase == .active {
-                    Button(copy.pause) { Task { await model.pauseRun() } }
-                        .buttonStyle(.borderedProminent)
-                } else {
-                    Button(copy.resume) { Task { await model.resumeRun() } }
-                        .buttonStyle(.borderedProminent)
+                    .frame(width: 38, height: 38)
+                    .background(IslandifyBrightPalette.mint.opacity(0.13), in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(state.configuration.name)
+                        .font(.headline.weight(.semibold))
+                    Text(copy.runningPhaseLabel(state.phase.rawValue))
+                        .font(.caption)
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
                 }
-                TextField(copy.optionalMemo, text: $memo)
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityLabel(copy.optionalRunMemo)
-                Button(copy.end, role: .destructive) {
-                    Task { await model.endRun(memo: memo.isEmpty ? nil : memo) }
+                Spacer()
+                Menu {
+                    Button(copy.end, role: .destructive) { Task { await model.endRun(memo: memo.isEmpty ? nil : memo) } }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.body.weight(.bold))
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                        .frame(width: 38, height: 38)
+                        .background(IslandifyBrightPalette.surfaceSoft, in: Circle())
                 }
-                .buttonStyle(.bordered)
+                .accessibilityLabel(copy.end)
+            }
+
+            IslandifyHeroCard(
+                eyebrow: copy.running,
+                value: IslandifyTimeFormatter.distance(kilometers: snapshot.distanceKilometers),
+                detail: IslandifyTimeFormatter.duration(snapshot.elapsed)
+            )
+            .accessibilityLabel(state.configuration.name)
+
+            IslandifyBrightCard(padding: 16, cornerRadius: 22) {
+                VStack(spacing: 14) {
+                    HStack(spacing: 10) {
+                        runningMetric(title: copy.currentPace, value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.currentPaceSecondsPerKilometer))
+                        runningMetric(title: copy.averagePace, value: IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.averagePaceSecondsPerKilometer))
+                        runningMetric(title: copy.calories, value: copy.caloriesValue(Int(snapshot.calories.rounded())))
+                    }
+
+                    Text(locationMessage)
+                        .font(.caption)
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    HStack(spacing: 10) {
+                        if state.phase == .active {
+                            Button(copy.pause) { Task { await model.pauseRun() } }
+                                .buttonStyle(.borderedProminent)
+                                .tint(IslandifyBrightPalette.mint)
+                        } else if state.phase == .paused {
+                            Button(copy.resume) { Task { await model.resumeRun() } }
+                                .buttonStyle(.borderedProminent)
+                                .tint(IslandifyBrightPalette.mint)
+                        }
+                        TextField(copy.optionalMemo, text: $memo)
+                            .textFieldStyle(.plain)
+                            .islandifyInputStyle()
+                            .accessibilityLabel(copy.optionalRunMemo)
+                    }
+                }
             }
         }
-        .padding()
-        .islandifyBrightCardBackground(cornerRadius: 24)
         .foregroundStyle(IslandifyBrightPalette.text)
-        .accessibilityElement(children: .contain)
     }
 
     private var locationMessage: String {
@@ -159,40 +170,54 @@ struct RunningFeatureView: View {
 
     private var history: some View {
         let copy = IslandifyCopy.current
-        return VStack(alignment: .leading, spacing: 10) {
-            Text(copy.recentRuns)
-                .font(.headline)
-            if model.runRecords.isEmpty {
-                Text(copy.completedRunsPlaceholder)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(model.runRecords.prefix(5)) { record in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(record.name).font(.body.weight(.medium))
-                            Text("\(IslandifyTimeFormatter.distance(kilometers: record.distanceMeters / 1_000)) · \(IslandifyTimeFormatter.duration(record.duration))")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+        return IslandifyBrightCard(padding: 18, cornerRadius: 26) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(copy.recentRuns)
+                        .font(.headline.weight(.semibold))
+                    Spacer()
+                    Image(systemName: "chart.bar.xaxis")
+                        .foregroundStyle(IslandifyBrightPalette.mint)
+                }
+                if model.runRecords.isEmpty {
+                    Text(copy.completedRunsPlaceholder)
+                        .font(.callout)
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                } else {
+                    ForEach(model.runRecords.prefix(5)) { record in
+                        HStack(spacing: 10) {
+                            Image(systemName: "figure.run")
+                                .foregroundStyle(IslandifyBrightPalette.mint)
+                                .frame(width: 34, height: 34)
+                                .background(IslandifyBrightPalette.mint.opacity(0.11), in: Circle())
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(record.name)
+                                    .font(.subheadline.weight(.medium))
+                                Text("\(IslandifyTimeFormatter.distance(kilometers: record.distanceMeters / 1_000)) · \(IslandifyTimeFormatter.duration(record.duration))")
+                                    .font(.caption)
+                                    .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                            }
+                            Spacer()
+                            Text(copy.caloriesValue(Int(record.calories.rounded())))
+                                .font(.caption.monospacedDigit().weight(.semibold))
+                                .foregroundStyle(IslandifyBrightPalette.secondaryText)
                         }
-                        Spacer()
-                        Text(copy.caloriesValue(Int(record.calories.rounded())))
-                            .font(.caption.monospacedDigit())
+                        .accessibilityElement(children: .combine)
                     }
-                    .accessibilityElement(children: .combine)
                 }
             }
         }
     }
 
-    private func metric(title: String, value: String) -> some View {
+    private func runningMetric(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(IslandifyBrightPalette.secondaryText)
                 .lineLimit(1)
             Text(value)
                 .font(.caption.monospacedDigit().weight(.semibold))
+                .foregroundStyle(IslandifyBrightPalette.text)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
@@ -200,15 +225,7 @@ struct RunningFeatureView: View {
     }
 }
 
-private extension Color {
-    init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var value: UInt64 = 0
-        Scanner(string: cleaned).scanHexInt64(&value)
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255
-        )
-    }
+#Preview {
+    RunningFeatureView()
+        .environmentObject(IslandifyAppModel())
 }

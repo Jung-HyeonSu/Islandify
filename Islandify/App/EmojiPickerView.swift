@@ -8,19 +8,22 @@ struct IslandifyEmojiPickerField: View {
     var body: some View {
         HStack(spacing: 12) {
             Label(title, systemImage: "face.smiling")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(IslandifyBrightPalette.text)
 
             Spacer(minLength: 8)
 
             TextField(placeholder, text: $selection)
                 .multilineTextAlignment(.trailing)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 90)
+                .textFieldStyle(.plain)
+                .frame(width: 72)
                 .keyboardType(.default)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
                 .accessibilityLabel(selection.isEmpty ? title : "\(title), \(selection)")
                 .accessibilityHint(IslandifyLanguage.current == .korean ? "탭한 뒤 키보드의 이모지 키로 선택" : "Tap, then use the emoji key on the keyboard")
         }
+        .islandifyInputStyle()
     }
 }
 
