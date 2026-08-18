@@ -31,10 +31,10 @@ The product is not an unrestricted Dynamic Island drawing tool. It is a small, a
 
 ### M1 — Shared activity and customization primitives
 
-- [ ] Define activity kinds, lifecycle phases, theme palette, icon/emoji, progress style, and compact leading/trailing content configuration.
-- [ ] Define a versioned shared presentation model that can render within Apple’s fixed Live Activity regions.
-- [ ] Add the six baseline themes: Minimal Black, Pastel Couple, Travel Blue, Neon Timer, Running Green, and Cream Diary.
-- [ ] Add accessibility labels, contrast-safe colors, Dynamic Type behavior, and sensible truncation fallbacks.
+- [x] Define activity kinds, lifecycle phases, theme palette, icon/emoji, progress style, and compact leading/trailing content configuration.
+- [x] Define a versioned shared presentation model that can render within Apple’s fixed Live Activity regions.
+- [x] Add the six baseline themes: Minimal Black, Pastel Couple, Travel Blue, Neon Timer, Running Green, and Cream Diary.
+- [x] Add accessibility labels, contrast-safe colors, Dynamic Type behavior, and sensible truncation fallbacks.
 
 ### M2 — Countdown timer
 
@@ -96,5 +96,7 @@ The goal is complete only when M0–M7 are implemented or an explicitly document
 - Harness baseline: complete.
 - M0 clean project foundation: complete. Added `Islandify.xcodeproj` with app, WidgetKit extension, and unit-test targets, iOS 16.1 build settings, signing-safe simulator settings, Live Activities plist support, shared/domain/test directories, a versioned JSON store, preview data, and a minimal SwiftUI shell.
 - M0 verification: `swiftc -frontend -parse` passed for all Swift sources; `swift test` completed with zero runnable cases because the active Command Line Tools SDK does not provide XCTest; all plist files and `Islandify.xcodeproj/project.pbxproj` passed `plutil -lint`; `git diff --check` passed. `xcodebuild` and simulator execution remain pending because the active developer directory is `/Library/Developer/CommandLineTools` rather than full Xcode.
-- App implementation: M0 complete; M1 and later milestones remain in progress.
+- M1 shared primitives: complete. Added `ActivityKind`, lifecycle phases, icon/theme/progress/slot models, six contrast-safe themes, constrained compact/minimal/expanded/Lock Screen render models, pure date/time helpers, and the shared `IslandifyActivityAttributes.ContentState` contract used by app and Widget target memberships.
+- M1 verification: `swift test` built the Foundation domain and conditional Xcode tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all Swift sources; `plutil -lint` passed plist, entitlements, and project files; `git diff --check` passed. ActivityKit/WidgetKit type-checking and runtime surface review remain pending until full Xcode is selected.
+- App implementation: M0 and M1 complete; M2 and later milestones remain in progress.
 - Environment: full Xcode is not selected; `xcodebuild -version` exits because the active developer directory is Command Line Tools.

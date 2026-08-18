@@ -54,5 +54,8 @@ struct IslandifyWidgetView: View {
 struct IslandifyWidgetBundle: WidgetBundle {
     var body: some Widget {
         IslandifyWidget()
+        if #available(iOS 16.1, *) {
+            IslandifyLiveActivityWidget()
+        }
     }
 }

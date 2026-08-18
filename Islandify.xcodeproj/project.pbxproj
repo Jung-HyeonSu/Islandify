@@ -15,6 +15,16 @@
 		600000000000000000000006 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000002 /* PreviewData.swift */; };
 		600000000000000000000007 /* LocalStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000001 /* LocalStoreTests.swift */; };
 		600000000000000000000008 /* IslandifyWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E00000000000000000000001 /* IslandifyWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		600000000000000000000009 /* ActivityPresentation.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* ActivityPresentation.swift */; };
+		600000000000000000000010 /* DateMath.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000004 /* DateMath.swift */; };
+		600000000000000000000011 /* TimeFormatting.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000005 /* TimeFormatting.swift */; };
+		600000000000000000000012 /* IslandifyActivityAttributes.swift in Islandify Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000006 /* IslandifyActivityAttributes.swift */; };
+		600000000000000000000013 /* ActivityPresentation.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* ActivityPresentation.swift */; };
+		600000000000000000000014 /* DateMath.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000004 /* DateMath.swift */; };
+		600000000000000000000015 /* TimeFormatting.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000005 /* TimeFormatting.swift */; };
+		600000000000000000000016 /* IslandifyActivityAttributes.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000006 /* IslandifyActivityAttributes.swift */; };
+		600000000000000000000017 /* IslandifyLiveActivityWidget.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */; };
+		600000000000000000000018 /* PresentationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000002 /* PresentationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,9 +63,15 @@
 		A00000000000000000000002 /* IslandifyApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyApp.swift; sourceTree = "<group>"; };
 		A00000000000000000000003 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B00000000000000000000001 /* IslandifyWidgetBundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyWidgetBundle.swift; sourceTree = "<group>"; };
+		B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyLiveActivityWidget.swift; sourceTree = "<group>"; };
 		C00000000000000000000001 /* LocalStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
 		C00000000000000000000002 /* PreviewData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		C00000000000000000000003 /* ActivityPresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityPresentation.swift; sourceTree = "<group>"; };
+		C00000000000000000000004 /* DateMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateMath.swift; sourceTree = "<group>"; };
+		C00000000000000000000005 /* TimeFormatting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
+		C00000000000000000000006 /* IslandifyActivityAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyActivityAttributes.swift; sourceTree = "<group>"; };
 		D00000000000000000000001 /* LocalStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStoreTests.swift; sourceTree = "<group>"; };
+		D00000000000000000000002 /* PresentationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentationTests.swift; sourceTree = "<group>"; };
 		E00000000000000000000001 /* IslandifyWidget.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = IslandifyWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00000000000000000000002 /* Islandify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Islandify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E00000000000000000000003 /* IslandifyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IslandifyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -96,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				B00000000000000000000001 /* IslandifyWidgetBundle.swift */,
+				B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */,
 				E00000000000000000000006 /* Widget Info.plist */,
 			);
 			path = IslandifyWidget;
@@ -105,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				100000000000000000000009 /* Domain */,
+				100000000000000000000010 /* ActivityContracts */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -113,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				D00000000000000000000001 /* LocalStoreTests.swift */,
+				D00000000000000000000002 /* PresentationTests.swift */,
 				E00000000000000000000007 /* Tests Info.plist */,
 			);
 			path = IslandifyTests;
@@ -152,8 +171,19 @@
 			children = (
 				C00000000000000000000001 /* LocalStore.swift */,
 				C00000000000000000000002 /* PreviewData.swift */,
+				C00000000000000000000003 /* ActivityPresentation.swift */,
+				C00000000000000000000004 /* DateMath.swift */,
+				C00000000000000000000005 /* TimeFormatting.swift */,
 			);
 			path = Domain;
+			sourceTree = "<group>";
+		};
+		100000000000000000000010 /* ActivityContracts */ = {
+			isa = PBXGroup;
+			children = (
+				C00000000000000000000006 /* IslandifyActivityAttributes.swift */,
+			);
+			path = ActivityContracts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -258,14 +288,24 @@
 			600000000000000000000003 /* ContentView.swift in Sources */,
 			600000000000000000000005 /* LocalStore.swift in Sources */,
 			600000000000000000000006 /* PreviewData.swift in Sources */,
+			600000000000000000000009 /* ActivityPresentation.swift in Islandify Sources */,
+			600000000000000000000010 /* DateMath.swift in Islandify Sources */,
+			600000000000000000000011 /* TimeFormatting.swift in Islandify Sources */,
+			600000000000000000000012 /* IslandifyActivityAttributes.swift in Islandify Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		500000000000000000000005 /* Widget Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 			600000000000000000000004 /* IslandifyWidgetBundle.swift in Sources */,
 			600000000000000000000005 /* LocalStore.swift in Sources */,
 			600000000000000000000006 /* PreviewData.swift in Sources */,
+			600000000000000000000013 /* ActivityPresentation.swift in Widget Sources */,
+			600000000000000000000014 /* DateMath.swift in Widget Sources */,
+			600000000000000000000015 /* TimeFormatting.swift in Widget Sources */,
+			600000000000000000000016 /* IslandifyActivityAttributes.swift in Widget Sources */,
+			600000000000000000000017 /* IslandifyLiveActivityWidget.swift in Widget Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		500000000000000000000009 /* Test Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 			600000000000000000000007 /* LocalStoreTests.swift in Sources */,
+			600000000000000000000018 /* PresentationTests.swift in Test Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
