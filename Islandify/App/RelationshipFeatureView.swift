@@ -32,7 +32,10 @@ struct RelationshipFeatureView: View {
             .frame(maxWidth: .infinity)
         }
         .islandifyBrightPageBackground()
-        .onAppear { model.refresh() }
+        .onAppear {
+            model.refresh()
+            loadSavedIcon()
+        }
     }
 
     private var relationshipForm: some View {
@@ -67,15 +70,8 @@ struct RelationshipFeatureView: View {
                     .accessibilityLabel(copy.relationshipTimezone)
             }
 
-            HStack {
-                Label(copy.icon, systemImage: "face.smiling")
-                Spacer()
-                TextField("❤️", text: $iconText)
-                    .multilineTextAlignment(.trailing)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 72)
-                    .accessibilityLabel(copy.relationshipEmoji)
-            }
+            IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "❤️")
+                .accessibilityLabel(copy.relationshipEmoji)
 
             Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
@@ -110,12 +106,22 @@ struct RelationshipFeatureView: View {
         .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
+    private func loadSavedIcon() {
+        let saved = model.composition(for: .relationship)
+        if saved.icon.kind == .emoji {
+            iconText = saved.icon.value
+        }
+    }
+
     private func activeRelationshipCard(_ configuration: RelationshipConfiguration) -> some View {
         let copy = IslandifyCopy.current
         let snapshot = RelationshipCalculator.snapshot(for: configuration, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                Label(configuration.name, systemImage: configuration.icon.kind == .system ? configuration.icon.value : "heart.fill")
+            HStack(alignment: .top, spacing: 10) {
+                IslandifyAppIconView(icon: configuration.presentation.icon)
+                    .font(.title3)
+                    .frame(width: 30, height: 30)
+                Text(configuration.name)
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
                 Spacer()

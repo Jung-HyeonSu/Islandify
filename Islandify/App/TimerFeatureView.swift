@@ -32,7 +32,10 @@ struct TimerFeatureView: View {
             .frame(maxWidth: .infinity)
         }
         .islandifyBrightPageBackground()
-        .onAppear { model.refresh() }
+        .onAppear {
+            model.refresh()
+            loadSavedIcon()
+        }
         .onChange(of: model.activeTimer?.phase) { _ in model.refresh() }
     }
 
@@ -61,15 +64,8 @@ struct TimerFeatureView: View {
                 .accessibilityLabel(copy.durationAccessibility(minutes: durationMinutes))
             }
 
-            HStack {
-                Label(copy.icon, systemImage: "face.smiling")
-                Spacer()
-                TextField("🔥", text: $iconText)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 72)
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityLabel(copy.timerEmoji)
-            }
+            IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "🔥")
+                .accessibilityLabel(copy.timerEmoji)
 
             Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
@@ -114,12 +110,22 @@ struct TimerFeatureView: View {
         .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
+    private func loadSavedIcon() {
+        let saved = model.composition(for: .timer)
+        if saved.icon.kind == .emoji {
+            iconText = saved.icon.value
+        }
+    }
+
     private func activeTimerCard(_ state: TimerState) -> some View {
         let copy = IslandifyCopy.current
         let snapshot = TimerEngine.snapshot(for: state, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                Label(state.configuration.name, systemImage: state.configuration.icon.kind == .system ? state.configuration.icon.value : "face.smiling")
+            HStack(alignment: .top, spacing: 10) {
+                IslandifyAppIconView(icon: state.configuration.presentation.icon)
+                    .font(.title3)
+                    .frame(width: 30, height: 30)
+                Text(state.configuration.name)
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
                 Spacer()

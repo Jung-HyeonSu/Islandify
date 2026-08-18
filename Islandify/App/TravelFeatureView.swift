@@ -30,7 +30,10 @@ struct TravelFeatureView: View {
             .frame(maxWidth: .infinity)
         }
         .islandifyBrightPageBackground()
-        .onAppear { model.refresh() }
+        .onAppear {
+            model.refresh()
+            loadSavedIcon()
+        }
     }
 
     private var travelForm: some View {
@@ -60,15 +63,8 @@ struct TravelFeatureView: View {
                     .accessibilityLabel(copy.departureTimezone)
             }
 
-            HStack {
-                Label(copy.icon, systemImage: "face.smiling")
-                Spacer()
-                TextField("✈️", text: $iconText)
-                    .multilineTextAlignment(.trailing)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 72)
-                    .accessibilityLabel(copy.tripEmoji)
-            }
+            IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "✈️")
+                .accessibilityLabel(copy.tripEmoji)
 
             Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
@@ -99,12 +95,22 @@ struct TravelFeatureView: View {
         .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
+    private func loadSavedIcon() {
+        let saved = model.composition(for: .travel)
+        if saved.icon.kind == .emoji {
+            iconText = saved.icon.value
+        }
+    }
+
     private func activeTravelCard(_ configuration: TravelConfiguration) -> some View {
         let copy = IslandifyCopy.current
         let state = TravelCalculator.state(for: configuration, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                Label(configuration.tripName, systemImage: configuration.icon.kind == .system ? configuration.icon.value : "airplane.departure")
+            HStack(alignment: .top, spacing: 10) {
+                IslandifyAppIconView(icon: configuration.presentation.icon)
+                    .font(.title3)
+                    .frame(width: 30, height: 30)
+                Text(configuration.tripName)
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
                 Spacer()

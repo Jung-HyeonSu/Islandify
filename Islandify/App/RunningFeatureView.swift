@@ -29,7 +29,10 @@ struct RunningFeatureView: View {
             .frame(maxWidth: .infinity)
         }
         .islandifyBrightPageBackground()
-        .onAppear { model.refresh() }
+        .onAppear {
+            model.refresh()
+            loadSavedIcon()
+        }
     }
 
     private var runForm: some View {
@@ -47,15 +50,8 @@ struct RunningFeatureView: View {
                 .textFieldStyle(.roundedBorder)
                 .accessibilityLabel(copy.runName)
 
-            HStack {
-                Label(copy.icon, systemImage: "face.smiling")
-                Spacer()
-                TextField("🏃", text: $iconText)
-                    .multilineTextAlignment(.trailing)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 72)
-                    .accessibilityLabel(copy.runEmoji)
-            }
+            IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "🏃")
+                .accessibilityLabel(copy.runEmoji)
 
             Picker(copy.theme, selection: $theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
@@ -77,12 +73,22 @@ struct RunningFeatureView: View {
         .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
+    private func loadSavedIcon() {
+        let saved = model.composition(for: .running)
+        if saved.icon.kind == .emoji {
+            iconText = saved.icon.value
+        }
+    }
+
     private func activeRunCard(_ state: RunningState) -> some View {
         let copy = IslandifyCopy.current
         let snapshot = RunningCalculator.snapshot(for: state, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                Label(state.configuration.name, systemImage: state.configuration.icon.kind == .system ? state.configuration.icon.value : "figure.run")
+            HStack(alignment: .top, spacing: 10) {
+                IslandifyAppIconView(icon: state.configuration.presentation.icon)
+                    .font(.title3)
+                    .frame(width: 30, height: 30)
+                Text(state.configuration.name)
                     .font(.title2.weight(.semibold))
                     .lineLimit(1)
                 Spacer()

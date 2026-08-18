@@ -53,18 +53,8 @@ struct CustomizationFeatureView: View {
                 .textFieldStyle(.roundedBorder)
                 .accessibilityLabel(copy.liveActivityDescription)
 
-            HStack {
-                Label(copy.iconOrEmoji, systemImage: "face.smiling")
-                Spacer()
-                TextField("🔥", text: $iconText)
-                    .multilineTextAlignment(.trailing)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 90)
-                    .accessibilityLabel(copy.liveActivityIconOrEmoji)
-                    .onChange(of: iconText) { value in
-                        configuration.icon = ActivityIcon(emoji: value)
-                    }
-            }
+            IslandifyEmojiPickerField(selection: iconSelection, title: copy.iconOrEmoji, placeholder: emojiPlaceholder)
+                .accessibilityLabel(copy.liveActivityIconOrEmoji)
 
             Picker(copy.themeOrColor, selection: $configuration.theme) {
                 ForEach(IslandifyTheme.allCases, id: \.self) { theme in
@@ -147,7 +137,30 @@ struct CustomizationFeatureView: View {
 
     private func loadConfiguration() {
         configuration = model.composition(for: kind)
-        iconText = configuration.icon.value
+        iconText = configuration.icon.kind == .emoji ? configuration.icon.value : emojiPlaceholder
+        configuration.icon = ActivityIcon(emoji: iconText)
+    }
+
+    private var iconSelection: Binding<String> {
+        Binding(
+            get: { iconText },
+            set: { value in
+                iconText = value
+                let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    configuration.icon = ActivityIcon(emoji: trimmed)
+                }
+            }
+        )
+    }
+
+    private var emojiPlaceholder: String {
+        switch kind {
+        case .timer: return "🔥"
+        case .travel: return "✈️"
+        case .relationship: return "❤️"
+        case .running: return "🏃"
+        }
     }
 
     private func expandedSlot(at index: Int) -> PresentationSlot {

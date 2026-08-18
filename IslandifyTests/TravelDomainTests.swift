@@ -165,5 +165,26 @@ final class TravelDomainTests: XCTestCase {
         XCTAssertEqual(decoded, configuration)
         XCTAssertEqual(decoded.timeZoneIdentifier, "America/New_York")
     }
+
+    func testTravelPresentationPreservesTheConfiguredEmoji() throws {
+        let utc = calendar(timeZoneIdentifier: "UTC")
+        let emoji = ActivityIcon(emoji: "🗺️")
+        let configuration = try TravelConfiguration(
+            tripName: "Emoji trip",
+            destination: "Seoul",
+            departureDate: date(2025, 8, 1, 18, in: utc),
+            timeZoneIdentifier: "UTC",
+            icon: emoji
+        )
+
+        let presentation = TravelCalculator.presentation(
+            for: configuration,
+            at: date(2025, 7, 25, 12, in: utc),
+            calendar: utc
+        )
+
+        XCTAssertEqual(presentation.icon, emoji)
+        XCTAssertEqual(presentation.compactLeading, emoji.value)
+    }
 }
 #endif

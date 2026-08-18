@@ -10,47 +10,30 @@ struct IslandifyLiveActivityWidget: Widget {
         } dynamicIsland: { context in
             let state = context.state.presentation
             return DynamicIsland {
-                DynamicIslandExpandedRegion(.leading) {
-                    IslandifyIconView(icon: state.icon)
-                }
                 DynamicIslandExpandedRegion(.center) {
-                    VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 7) {
+                        IslandifyIconView(icon: state.icon)
                         Text(state.title)
                             .font(.headline)
                             .lineLimit(1)
+                        Spacer(minLength: 4)
                         IslandifyDynamicValue(state: state)
-                            .font(.title3.monospacedDigit().weight(.semibold))
+                            .font(.body.monospacedDigit().weight(.semibold))
                             .lineLimit(1)
                     }
-                }
-                DynamicIslandExpandedRegion(.trailing) {
-                    Text(state.compactTrailing)
-                        .font(.caption.monospacedDigit())
-                        .lineLimit(1)
-                }
-                DynamicIslandExpandedRegion(.bottom) {
-                    let copy = IslandifyCopy.current
-                    VStack(alignment: .leading, spacing: 5) {
-                        IslandifyProgressView(state: state)
-                        HStack {
-                            IslandifyElapsedValue(state: state)
-                            Text(state.description)
-                                .font(.caption)
-                                .lineLimit(1)
-                            Spacer(minLength: 8)
-                            Text(copy.phaseLabel(state.phase))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                    .padding(.horizontal, 4)
                 }
             } compactLeading: {
                 IslandifyCompactText(value: state.compactLeading, icon: state.icon)
+                    .frame(maxWidth: 32)
             } compactTrailing: {
                 IslandifyDynamicValue(state: state)
                     .font(.caption2.monospacedDigit().weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             } minimal: {
-                IslandifyCompactText(value: state.compactTrailing, icon: state.icon)
+                IslandifyCompactText(value: state.icon.value, icon: state.icon)
+                    .frame(maxWidth: 32)
             }
             .widgetURL(URL(string: "islandify://activity/\(context.attributes.activityID.uuidString)"))
             .keylineTint(Color(hex: state.palette.accentHex))
@@ -172,10 +155,12 @@ private struct IslandifyCompactText: View {
 
     var body: some View {
         Group {
-            if icon.kind == .emoji {
+            if value == icon.value, icon.kind == .emoji {
                 Text(icon.value)
-            } else {
+            } else if value == icon.value, icon.kind == .system {
                 Image(systemName: icon.value)
+            } else {
+                Text(value)
             }
         }
         .font(.caption2)
