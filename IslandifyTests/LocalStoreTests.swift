@@ -31,5 +31,16 @@ final class LocalStoreTests: XCTestCase {
 
         XCTAssertNil(try store.load(PreviewActivity.self, forKey: "missing"))
     }
+
+    func testLoadsSchemaOneValueThroughExplicitMigrationPath() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("IslandifyTests-\(UUID().uuidString)", isDirectory: true)
+        let legacyStore = JSONLocalStore(directoryURL: directory)
+        let value = PreviewActivity(title: "Legacy", subtitle: "Migrated", primaryValue: "00:30")
+        try legacyStore.save(value, forKey: "legacy", schemaVersion: 1)
+
+        let migratedStore = JSONLocalStore(directoryURL: directory, migrations: [1: { _, data in data }])
+        XCTAssertEqual(try migratedStore.load(PreviewActivity.self, forKey: "legacy"), value)
+    }
 }
 #endif

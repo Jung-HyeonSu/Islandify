@@ -20,6 +20,7 @@ final class IslandifyAppModel: ObservableObject {
     private var displayTimer: Timer?
     private var lastTravelKind: TravelStateKind?
     private var lastRelationshipDayCount: Int?
+    private var lastRunProjectionDate: Date?
 
     private enum StoreKey {
         static let activeTimer = "active-timer"
@@ -34,7 +35,7 @@ final class IslandifyAppModel: ObservableObject {
         let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         let directory = applicationSupport.appendingPathComponent("Islandify", isDirectory: true)
-        self.store = JSONLocalStore(directoryURL: directory)
+        self.store = JSONLocalStore(directoryURL: directory, migrations: [1: { _, valueData in valueData }])
         self.activityManager = LiveActivityManager()
         self.notificationScheduler = LocalNotificationScheduler()
         self.locationService = LocationService()
@@ -45,6 +46,7 @@ final class IslandifyAppModel: ObservableObject {
         loadRun()
         loadRunRecords()
         loadCompositions()
+        reconcilePersistedActivities()
         displayTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.refresh()
@@ -58,6 +60,7 @@ final class IslandifyAppModel: ObservableObject {
 
     func refresh(at date: Date = .now) {
         now = date
+        activityManager.reconcile()
         if let activeTimer {
             let reconciled = TimerEngine.reconcile(activeTimer, at: date)
             if reconciled != activeTimer {
@@ -89,8 +92,12 @@ final class IslandifyAppModel: ObservableObject {
         }
 
         if let activeRun {
-            let presentation = RunningCalculator.presentation(for: activeRun, at: date)
-            Task { try? await activityManager.update(presentation: presentation) }
+            let shouldProject = lastRunProjectionDate.map { date.timeIntervalSince($0) >= 10 } ?? true
+            if shouldProject {
+                lastRunProjectionDate = date
+                let presentation = RunningCalculator.presentation(for: activeRun, at: date)
+                Task { try? await activityManager.update(presentation: presentation) }
+            }
         }
     }
 
@@ -311,6 +318,7 @@ final class IslandifyAppModel: ObservableObject {
         let configuration = RunningConfiguration(name: name, icon: icon, theme: theme, presentation: compositions[.running])
         let state = RunningCalculator.start(configuration: configuration, at: .now)
         activeRun = state
+        lastRunProjectionDate = .now
         persistRun()
         message = nil
 
@@ -334,6 +342,7 @@ final class IslandifyAppModel: ObservableObject {
         guard let activeRun else { return }
         let updated = RunningCalculator.pause(activeRun, at: .now)
         self.activeRun = updated
+        lastRunProjectionDate = .now
         locationService.stop()
         persistRun()
         try? await activityManager.update(presentation: RunningCalculator.presentation(for: updated, at: .now))
@@ -343,6 +352,7 @@ final class IslandifyAppModel: ObservableObject {
         guard let activeRun else { return }
         let updated = RunningCalculator.resume(activeRun, at: .now)
         self.activeRun = updated
+        lastRunProjectionDate = .now
         locationAuthorization = locationService.start { [weak self] sample in
             Task { @MainActor [weak self] in
                 self?.receiveLocationSample(sample)
@@ -362,6 +372,7 @@ final class IslandifyAppModel: ObservableObject {
         locationService.stop()
         await activityManager.end(presentation: RunningCalculator.presentation(for: completed, at: .now))
         self.activeRun = nil
+        self.lastRunProjectionDate = nil
         try? store.removeValue(forKey: StoreKey.activeRun)
     }
 
@@ -370,6 +381,7 @@ final class IslandifyAppModel: ObservableObject {
         let updated = RunningCalculator.addSample(activeRun, sample: sample)
         guard updated != activeRun else { return }
         self.activeRun = updated
+        lastRunProjectionDate = .now
         persistRun()
         Task { try? await activityManager.update(presentation: RunningCalculator.presentation(for: updated, at: .now)) }
     }
@@ -426,7 +438,13 @@ final class IslandifyAppModel: ObservableObject {
     private func loadRun() {
         do {
             if let stored = try store.load(RunningState.self, forKey: StoreKey.activeRun) {
-                activeRun = stored
+                if stored.phase == .active {
+                    activeRun = RunningCalculator.pause(stored, at: .now)
+                    persistRun()
+                    message = "The previous run was paused after relaunch. Resume it to continue GPS tracking."
+                } else {
+                    activeRun = stored
+                }
             }
         } catch {
             message = "Saved run could not be loaded."
@@ -494,6 +512,48 @@ final class IslandifyAppModel: ObservableObject {
             try store.save(runRecords, forKey: StoreKey.runRecords)
         } catch {
             message = "Run history could not be saved on this device."
+        }
+    }
+
+    private func reconcilePersistedActivities() {
+        var foundActivity = false
+        if activeTimer != nil {
+            foundActivity = true
+        }
+        if activeTravel != nil {
+            if foundActivity {
+                activeTravel = nil
+                try? store.removeValue(forKey: StoreKey.activeTravel)
+                message = "A duplicate saved activity was ignored; the timer remains authoritative."
+            } else {
+                foundActivity = true
+            }
+        }
+        if activeRelationship != nil {
+            if foundActivity {
+                activeRelationship = nil
+                try? store.removeValue(forKey: StoreKey.activeRelationship)
+                message = "A duplicate saved activity was ignored; the first activity remains authoritative."
+            } else {
+                foundActivity = true
+            }
+        }
+        if activeRun != nil {
+            if foundActivity {
+                activeRun = nil
+                locationService.stop()
+                try? store.removeValue(forKey: StoreKey.activeRun)
+                message = "A duplicate saved activity was ignored; the first activity remains authoritative."
+            }
+        }
+    }
+
+    func handleDeepLink(_ url: URL) {
+        guard url.scheme == "islandify" else { return }
+        if url.host == "activity" {
+            message = "Activity details are shown in the active tab."
+        } else {
+            message = "Islandify opened from a supported link."
         }
     }
 

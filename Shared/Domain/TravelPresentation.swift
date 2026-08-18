@@ -18,6 +18,14 @@ public extension TravelCalculator {
             secondary = configuration.destination
         }
 
+        let primaryValue: String
+        switch configuration.presentation.numberFormat {
+        case .duration, .compactDuration:
+            primaryValue = state.countdown?.formatted ?? state.displayValue
+        default:
+            primaryValue = state.displayValue
+        }
+
         return ActivityPresentationState(
             kind: .travel,
             phase: .active,
@@ -25,11 +33,12 @@ public extension TravelCalculator {
             description: configuration.presentation.description,
             icon: configuration.presentation.icon,
             palette: configuration.presentation.theme.palette,
-            primaryValue: state.displayValue,
+            primaryValue: primaryValue,
             secondaryValue: secondary,
             progress: nil,
+            progressStyle: configuration.presentation.progressStyle,
             compactLeading: configuration.presentation.icon.value,
-            compactTrailing: state.displayValue,
+            compactTrailing: primaryValue,
             expandedDetails: [configuration.destination, state.label, state.countdownText ?? ""].filter { !$0.isEmpty },
             completionMessage: configuration.presentation.completionMessage,
             accessibilityLabel: "\(configuration.tripName), \(configuration.destination), \(state.displayValue)",

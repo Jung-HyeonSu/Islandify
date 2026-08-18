@@ -1,7 +1,7 @@
 import Foundation
 
 public enum IslandifyDataModel {
-    public static let currentVersion = 1
+    public static let currentVersion = 2
 }
 
 public enum LocalStoreError: Error, Equatable {
@@ -27,6 +27,8 @@ private struct DecodedEnvelope<Value: Decodable>: Decodable {
     let value: Value
 }
 
+public typealias StoreMigration = (_ fromVersion: Int, _ valueData: Data) throws -> Data
+
 /// A small device-local JSON store with an explicit schema envelope.
 /// The app can replace the migration closure in a later schema version without
 /// changing callers or storing process-local state.
@@ -35,10 +37,16 @@ public final class JSONLocalStore: LocalStore {
     private let fileManager: FileManager
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
+    private let migrations: [Int: StoreMigration]
 
-    public init(directoryURL: URL, fileManager: FileManager = .default) {
+    public init(
+        directoryURL: URL,
+        fileManager: FileManager = .default,
+        migrations: [Int: StoreMigration] = [:]
+    ) {
         self.directoryURL = directoryURL
         self.fileManager = fileManager
+        self.migrations = migrations
 
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
@@ -78,11 +86,25 @@ public final class JSONLocalStore: LocalStore {
 
         do {
             let data = try Data(contentsOf: url)
-            let envelope = try decoder.decode(DecodedEnvelope<Value>.self, from: data)
-            guard envelope.schemaVersion <= IslandifyDataModel.currentVersion else {
-                throw LocalStoreError.invalidSchemaVersion(envelope.schemaVersion)
+            let object = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+            guard let dictionary = object as? [String: Any],
+                  let schemaVersion = dictionary["schemaVersion"] as? Int,
+                  let valueObject = dictionary["value"] else {
+                throw LocalStoreError.decodingFailed
             }
-            return envelope.value
+            guard schemaVersion <= IslandifyDataModel.currentVersion else {
+                throw LocalStoreError.invalidSchemaVersion(schemaVersion)
+            }
+
+            var valueData = try JSONSerialization.data(withJSONObject: valueObject, options: [.fragmentsAllowed])
+            if schemaVersion < IslandifyDataModel.currentVersion {
+                for version in schemaVersion..<IslandifyDataModel.currentVersion {
+                    if let migration = migrations[version] {
+                        valueData = try migration(version, valueData)
+                    }
+                }
+            }
+            return try decoder.decode(Value.self, from: valueData)
         } catch let error as LocalStoreError {
             throw error
         } catch {

@@ -33,7 +33,9 @@ final class LiveActivityManager {
     }
 
     func reconcile() {
-        currentActivity = Activity<IslandifyActivityAttributes>.activities.first
+        currentActivity = Activity<IslandifyActivityAttributes>.activities.first {
+            $0.activityState == .active
+        }
     }
 
     func start(presentation: ActivityPresentationState) async throws {

@@ -199,7 +199,9 @@ public enum RunningCalculator {
         var updated = state
         if let previous = state.lastSample, sample.timestamp >= previous.timestamp {
             let delta = distanceMeters(from: previous, to: sample)
-            if delta <= 500 {
+            // Ignore impossible GPS jumps while allowing sparse background
+            // samples to cover several blocks between updates.
+            if delta <= 5_000 {
                 updated.distanceMeters += delta
                 updated.segmentDistanceMeters += delta
             }
@@ -280,7 +282,15 @@ public enum RunningCalculator {
 
     public static func presentation(for state: RunningState, at date: Date) -> ActivityPresentationState {
         let snapshot = snapshot(for: state, at: date)
-        let distance = IslandifyTimeFormatter.distance(kilometers: snapshot.distanceKilometers)
+        let distance: String
+        switch state.configuration.presentation.numberFormat {
+        case .decimal:
+            distance = IslandifyTimeFormatter.decimal(snapshot.distanceKilometers, fractionDigits: 2)
+        case .duration:
+            distance = IslandifyTimeFormatter.duration(snapshot.elapsed)
+        default:
+            distance = IslandifyTimeFormatter.distance(kilometers: snapshot.distanceKilometers)
+        }
         let pace = IslandifyTimeFormatter.pace(secondsPerKilometer: snapshot.averagePaceSecondsPerKilometer)
         let phase: ActivityPhase = {
             switch state.phase {
@@ -301,11 +311,13 @@ public enum RunningCalculator {
             primaryValue: distance,
             secondaryValue: pace,
             progress: nil,
+            progressStyle: state.configuration.presentation.progressStyle,
             compactLeading: state.configuration.presentation.icon.value,
             compactTrailing: distance,
             expandedDetails: [distance, "Time \(IslandifyTimeFormatter.duration(snapshot.elapsed))", "Pace \(pace)"],
             completionMessage: state.configuration.presentation.completionMessage,
-            accessibilityLabel: "\(state.configuration.name), \(distance), \(pace), \(IslandifyTimeFormatter.duration(snapshot.elapsed))"
+            accessibilityLabel: "\(state.configuration.name), \(distance), \(pace), \(IslandifyTimeFormatter.duration(snapshot.elapsed))",
+            countupStartDate: state.phase == .active ? date.addingTimeInterval(-snapshot.elapsed) : nil
         )
     }
 }

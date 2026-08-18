@@ -35,6 +35,7 @@ fi
 
 if [ -f "$repo_root/Package.swift" ] && command -v swift >/dev/null 2>&1; then
   (cd "$repo_root" && swift test)
+  (cd "$repo_root" && swift run IslandifyDomainChecks)
 else
   printf 'Swift package tests: SKIPPED (Package.swift or swift unavailable)\n'
 fi

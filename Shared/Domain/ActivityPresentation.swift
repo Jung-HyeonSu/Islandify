@@ -200,6 +200,7 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
     public var primaryValue: String
     public var secondaryValue: String?
     public var progress: Double?
+    public var progressStyle: ProgressStyle
     public var compactLeading: String
     public var compactTrailing: String
     public var expandedDetails: [String]
@@ -207,6 +208,7 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
     public var accessibilityLabel: String
     public var staleDate: Date?
     public var countdownEndDate: Date?
+    public var countupStartDate: Date?
 
     public init(
         kind: ActivityKind,
@@ -218,13 +220,15 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
         primaryValue: String,
         secondaryValue: String? = nil,
         progress: Double? = nil,
+        progressStyle: ProgressStyle = .hidden,
         compactLeading: String,
         compactTrailing: String,
         expandedDetails: [String] = [],
         completionMessage: String = "Done",
         accessibilityLabel: String? = nil,
         staleDate: Date? = nil,
-        countdownEndDate: Date? = nil
+        countdownEndDate: Date? = nil,
+        countupStartDate: Date? = nil
     ) {
         self.kind = kind
         self.phase = phase
@@ -235,6 +239,7 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
         self.primaryValue = primaryValue
         self.secondaryValue = secondaryValue
         self.progress = progress.map { min(max($0, 0), 1) }
+        self.progressStyle = progressStyle
         self.compactLeading = compactLeading
         self.compactTrailing = compactTrailing
         self.expandedDetails = expandedDetails
@@ -242,6 +247,7 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
         self.accessibilityLabel = accessibilityLabel ?? [title, primaryValue, secondaryValue].compactMap { $0 }.joined(separator: ", ")
         self.staleDate = staleDate
         self.countdownEndDate = countdownEndDate
+        self.countupStartDate = countupStartDate
     }
 
     public var isTerminal: Bool {

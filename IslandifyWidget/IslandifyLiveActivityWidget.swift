@@ -29,14 +29,18 @@ struct IslandifyLiveActivityWidget: Widget {
                         .lineLimit(1)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        Text(state.description)
-                            .font(.caption)
-                            .lineLimit(1)
-                        Spacer(minLength: 8)
-                        Text(state.phase.rawValue.capitalized)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 5) {
+                        IslandifyProgressView(state: state)
+                        HStack {
+                            IslandifyElapsedValue(state: state)
+                            Text(state.description)
+                                .font(.caption)
+                                .lineLimit(1)
+                            Spacer(minLength: 8)
+                            Text(state.phase.rawValue.capitalized)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             } compactLeading: {
@@ -73,6 +77,8 @@ private struct IslandifyLockScreenView: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
+                IslandifyProgressView(state: state)
+                IslandifyElapsedValue(state: state)
             }
             Spacer(minLength: 8)
             Text(state.phase == .completed ? state.completionMessage : state.compactTrailing)
@@ -96,6 +102,46 @@ private struct IslandifyDynamicValue: View {
         } else {
             Text(state.primaryValue)
                 .accessibilityLabel(state.accessibilityLabel)
+        }
+    }
+}
+
+@available(iOS 16.1, *)
+private struct IslandifyProgressView: View {
+    let state: ActivityPresentationState
+
+    @ViewBuilder
+    var body: some View {
+        if let progress = state.progress, state.progressStyle != .hidden {
+            switch state.progressStyle {
+            case .bar:
+                ProgressView(value: progress)
+                    .tint(Color(hex: state.palette.accentHex))
+            case .circle:
+                ProgressView(value: progress)
+                    .progressViewStyle(.circular)
+            case .dots:
+                let filled = Int((progress * 5).rounded())
+                Text(String(repeating: "●", count: filled) + String(repeating: "○", count: max(0, 5 - filled)))
+                    .font(.caption2)
+            case .hidden:
+                EmptyView()
+            }
+        }
+    }
+}
+
+@available(iOS 16.1, *)
+private struct IslandifyElapsedValue: View {
+    let state: ActivityPresentationState
+
+    @ViewBuilder
+    var body: some View {
+        if state.kind == .running, let startDate = state.countupStartDate, state.phase == .active {
+            Text(timerInterval: startDate...Date.distantFuture, countsDown: false)
+                .font(.caption.monospacedDigit())
+                .lineLimit(1)
+                .accessibilityLabel("Elapsed time")
         }
     }
 }

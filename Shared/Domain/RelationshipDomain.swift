@@ -148,6 +148,9 @@ public enum RelationshipCalculator {
     public static func presentation(for configuration: RelationshipConfiguration, at date: Date) -> ActivityPresentationState {
         let snapshot = snapshot(for: configuration, at: date)
         let next = snapshot.nextDayMilestone.map { "Next \($0.title)" }
+        let dayValue = configuration.presentation.numberFormat == .decimal
+            ? "\(snapshot.dayCount)"
+            : IslandifyTimeFormatter.dayCount(snapshot.dayCount)
         return ActivityPresentationState(
             kind: .relationship,
             phase: .active,
@@ -155,11 +158,12 @@ public enum RelationshipCalculator {
             description: configuration.nickname,
             icon: configuration.presentation.icon,
             palette: configuration.presentation.theme.palette,
-            primaryValue: IslandifyTimeFormatter.dayCount(snapshot.dayCount),
+            primaryValue: dayValue,
             secondaryValue: next,
             progress: nil,
+            progressStyle: configuration.presentation.progressStyle,
             compactLeading: configuration.presentation.icon.value,
-            compactTrailing: IslandifyTimeFormatter.dayCount(snapshot.dayCount),
+            compactTrailing: dayValue,
             expandedDetails: [snapshot.message, next ?? ""].filter { !$0.isEmpty },
             completionMessage: configuration.presentation.completionMessage,
             accessibilityLabel: snapshot.message

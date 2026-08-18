@@ -242,7 +242,15 @@ public enum TimerEngine {
     public static func presentation(for state: TimerState, at date: Date) -> ActivityPresentationState {
         let snapshot = snapshot(for: state, at: date)
         let phase = snapshot.phase
-        let value = IslandifyTimeFormatter.compactDuration(snapshot.remaining)
+        let value: String
+        switch state.configuration.presentation.numberFormat {
+        case .duration:
+            value = IslandifyTimeFormatter.duration(snapshot.remaining, includeHours: true)
+        case .decimal:
+            value = "\(Int((snapshot.remaining / 60).rounded())) min"
+        default:
+            value = IslandifyTimeFormatter.compactDuration(snapshot.remaining)
+        }
         let percent = "\(Int((snapshot.progress * 100).rounded()))%"
         let secondary = phase == .completed ? state.configuration.presentation.completionMessage : percent
         return ActivityPresentationState(
@@ -255,11 +263,13 @@ public enum TimerEngine {
             primaryValue: value,
             secondaryValue: secondary,
             progress: snapshot.progress,
+            progressStyle: state.configuration.presentation.progressStyle,
             compactLeading: state.configuration.presentation.icon.value,
             compactTrailing: value,
             expandedDetails: [state.configuration.name, value, "Progress \(percent)"],
             completionMessage: state.configuration.presentation.completionMessage,
             accessibilityLabel: "\(state.configuration.name), \(value), \(phase.rawValue)",
+            staleDate: state.phase == .active ? state.endDate : nil,
             countdownEndDate: state.phase == .active ? state.endDate : nil
         )
     }
