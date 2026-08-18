@@ -31,6 +31,7 @@ struct TimerFeatureView: View {
             .frame(maxWidth: 600)
             .frame(maxWidth: .infinity)
         }
+        .islandifyBrightPageBackground()
         .onAppear { model.refresh() }
         .onChange(of: model.activeTimer?.phase) { _ in model.refresh() }
     }
@@ -110,7 +111,7 @@ struct TimerFeatureView: View {
             .accessibilityHint(copy.startTimerHint)
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private func activeTimerCard(_ state: TimerState) -> some View {
@@ -167,8 +168,8 @@ struct TimerFeatureView: View {
             }
         }
         .padding()
-        .background(Color(hex: state.configuration.theme.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 20))
-        .foregroundStyle(Color(hex: state.configuration.theme.palette.foregroundHex))
+        .islandifyBrightCardBackground(cornerRadius: 24)
+        .foregroundStyle(IslandifyBrightPalette.text)
     }
 }
 

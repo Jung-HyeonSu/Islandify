@@ -28,6 +28,7 @@ struct RunningFeatureView: View {
             .frame(maxWidth: 600)
             .frame(maxWidth: .infinity)
         }
+        .islandifyBrightPageBackground()
         .onAppear { model.refresh() }
     }
 
@@ -73,7 +74,7 @@ struct RunningFeatureView: View {
             .accessibilityHint(copy.startRunHint)
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private func activeRunCard(_ state: RunningState) -> some View {
@@ -129,8 +130,8 @@ struct RunningFeatureView: View {
             }
         }
         .padding()
-        .background(Color(hex: state.configuration.theme.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 20))
-        .foregroundStyle(Color(hex: state.configuration.theme.palette.foregroundHex))
+        .islandifyBrightCardBackground(cornerRadius: 24)
+        .foregroundStyle(IslandifyBrightPalette.text)
         .accessibilityElement(children: .contain)
     }
 

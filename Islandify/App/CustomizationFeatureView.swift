@@ -23,6 +23,8 @@ struct CustomizationFeatureView: View {
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
         }
+        .islandifyBrightPageBackground()
+        .tint(IslandifyBrightPalette.accent)
         .onAppear { loadConfiguration() }
         .onChange(of: kind) { _ in loadConfiguration() }
     }
@@ -127,7 +129,7 @@ struct CustomizationFeatureView: View {
             .buttonStyle(.borderedProminent)
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private var preview: some View {

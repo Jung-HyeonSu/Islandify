@@ -31,6 +31,7 @@ struct RelationshipFeatureView: View {
             .frame(maxWidth: 600)
             .frame(maxWidth: .infinity)
         }
+        .islandifyBrightPageBackground()
         .onAppear { model.refresh() }
     }
 
@@ -106,7 +107,7 @@ struct RelationshipFeatureView: View {
             .accessibilityHint(copy.startRelationshipHint)
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private func activeRelationshipCard(_ configuration: RelationshipConfiguration) -> some View {
@@ -159,8 +160,8 @@ struct RelationshipFeatureView: View {
             }
         }
         .padding()
-        .background(Color(hex: configuration.theme.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 20))
-        .foregroundStyle(Color(hex: configuration.theme.palette.foregroundHex))
+        .islandifyBrightCardBackground(cornerRadius: 24)
+        .foregroundStyle(IslandifyBrightPalette.text)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(snapshot.message)
     }

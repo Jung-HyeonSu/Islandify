@@ -29,6 +29,7 @@ struct TravelFeatureView: View {
             .frame(maxWidth: 600)
             .frame(maxWidth: .infinity)
         }
+        .islandifyBrightPageBackground()
         .onAppear { model.refresh() }
     }
 
@@ -95,7 +96,7 @@ struct TravelFeatureView: View {
             .accessibilityHint(copy.startTripHint)
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .islandifyBrightCardBackground(cornerRadius: 24)
     }
 
     private func activeTravelCard(_ configuration: TravelConfiguration) -> some View {
@@ -143,8 +144,8 @@ struct TravelFeatureView: View {
             }
         }
         .padding()
-        .background(Color(hex: configuration.theme.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 20))
-        .foregroundStyle(Color(hex: configuration.theme.palette.foregroundHex))
+        .islandifyBrightCardBackground(cornerRadius: 24)
+        .foregroundStyle(IslandifyBrightPalette.text)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(copy.travelAccessibility(
             tripName: configuration.tripName,
