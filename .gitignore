@@ -1,0 +1,13 @@
+# Xcode and Swift build products
+DerivedData/
+.build/
+build/
+xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager metadata
+.swiftpm/
+Package.resolved
+
+# Local Codex diagnostics
+.codex-log/

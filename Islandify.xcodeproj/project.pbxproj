@@ -1,0 +1,402 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		600000000000000000000001 /* IslandifyAppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000001 /* IslandifyAppModel.swift */; };
+		600000000000000000000002 /* IslandifyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000002 /* IslandifyApp.swift */; };
+		600000000000000000000003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000003 /* ContentView.swift */; };
+		600000000000000000000004 /* IslandifyWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000001 /* IslandifyWidgetBundle.swift */; };
+		600000000000000000000005 /* LocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* LocalStore.swift */; };
+		600000000000000000000006 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000002 /* PreviewData.swift */; };
+		600000000000000000000007 /* LocalStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000001 /* LocalStoreTests.swift */; };
+		600000000000000000000008 /* IslandifyWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E00000000000000000000001 /* IslandifyWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		700000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 300000000000000000000001;
+			remoteInfo = Islandify;
+		};
+		700000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 301000000000000000000001;
+			remoteInfo = IslandifyWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		500000000000000000000004 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			 dstPath = "";
+			dstSubfolderSpec = 1;
+			files = (
+				600000000000000000000008 /* IslandifyWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A00000000000000000000001 /* IslandifyAppModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyAppModel.swift; sourceTree = "<group>"; };
+		A00000000000000000000002 /* IslandifyApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000003 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B00000000000000000000001 /* IslandifyWidgetBundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyWidgetBundle.swift; sourceTree = "<group>"; };
+		C00000000000000000000001 /* LocalStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
+		C00000000000000000000002 /* PreviewData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		D00000000000000000000001 /* LocalStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStoreTests.swift; sourceTree = "<group>"; };
+		E00000000000000000000001 /* IslandifyWidget.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = IslandifyWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E00000000000000000000002 /* Islandify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Islandify.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E00000000000000000000003 /* IslandifyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IslandifyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E00000000000000000000004 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E00000000000000000000005 /* Islandify.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Islandify.entitlements; sourceTree = "<group>"; };
+		E00000000000000000000006 /* Widget Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E00000000000000000000007 /* Tests Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		500000000000000000000002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		500000000000000000000006 /* Widget Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		500000000000000000000008 /* Test Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		100000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000002 /* Islandify */,
+				100000000000000000000003 /* IslandifyWidget */,
+				100000000000000000000004 /* Shared */,
+				100000000000000000000005 /* IslandifyTests */,
+				100000000000000000000006 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		100000000000000000000002 /* Islandify */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000007 /* App */,
+				100000000000000000000008 /* Resources */,
+			);
+			path = Islandify;
+			sourceTree = "<group>";
+		};
+		100000000000000000000003 /* IslandifyWidget */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000001 /* IslandifyWidgetBundle.swift */,
+				E00000000000000000000006 /* Widget Info.plist */,
+			);
+			path = IslandifyWidget;
+			sourceTree = "<group>";
+		};
+		100000000000000000000004 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000009 /* Domain */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		100000000000000000000005 /* IslandifyTests */ = {
+			isa = PBXGroup;
+			children = (
+				D00000000000000000000001 /* LocalStoreTests.swift */,
+				E00000000000000000000007 /* Tests Info.plist */,
+			);
+			path = IslandifyTests;
+			sourceTree = "<group>";
+		};
+		100000000000000000000006 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E00000000000000000000002 /* Islandify.app */,
+				E00000000000000000000001 /* IslandifyWidget.appex */,
+				E00000000000000000000003 /* IslandifyTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		100000000000000000000007 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000001 /* IslandifyAppModel.swift */,
+				A00000000000000000000002 /* IslandifyApp.swift */,
+				A00000000000000000000003 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		100000000000000000000008 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E00000000000000000000004 /* Info.plist */,
+				E00000000000000000000005 /* Islandify.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		100000000000000000000009 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				C00000000000000000000001 /* LocalStore.swift */,
+				C00000000000000000000002 /* PreviewData.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		300000000000000000000001 /* Islandify */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 400000000000000000000001 /* Build configuration list for PBXNativeTarget "Islandify" */;
+			buildPhases = (
+				500000000000000000000001 /* Sources */,
+				500000000000000000000002 /* Frameworks */,
+				500000000000000000000003 /* Resources */,
+				500000000000000000000004 /* Embed Foundation Extensions */,
+			);
+			buildRules = ();
+			dependencies = (
+				800000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = Islandify;
+			productName = Islandify;
+			productReference = E00000000000000000000002 /* Islandify.app */;
+			productType = "com.apple.product-type.application";
+		};
+		301000000000000000000001 /* IslandifyWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 400000000000000000000002 /* Build configuration list for PBXNativeTarget "IslandifyWidgetExtension" */;
+			buildPhases = (
+				500000000000000000000005 /* Widget Sources */,
+				500000000000000000000006 /* Widget Frameworks */,
+				500000000000000000000007 /* Widget Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = IslandifyWidgetExtension;
+			productName = IslandifyWidgetExtension;
+			productReference = E00000000000000000000001 /* IslandifyWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		302000000000000000000001 /* IslandifyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 400000000000000000000003 /* Build configuration list for PBXNativeTarget "IslandifyTests" */;
+			buildPhases = (
+				500000000000000000000009 /* Test Sources */,
+				500000000000000000000008 /* Test Frameworks */,
+				500000000000000000000010 /* Test Resources */,
+			);
+			buildRules = ();
+			dependencies = (
+				800000000000000000000002 /* PBXTargetDependency */,
+			);
+			name = IslandifyTests;
+			productName = IslandifyTests;
+			productReference = E00000000000000000000003 /* IslandifyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F00000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					300000000000000000000001 = { CreatedOnToolsVersion = 16.0; };
+					301000000000000000000001 = { CreatedOnToolsVersion = 16.0; };
+					302000000000000000000001 = { CreatedOnToolsVersion = 16.0; TestTargetID = 300000000000000000000001; };
+				};
+			};
+			buildConfigurationList = 200000000000000000000001 /* Build configuration list for PBXProject "Islandify" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 100000000000000000000001;
+			productRefGroup = 100000000000000000000006 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				300000000000000000000001 /* Islandify */,
+				301000000000000000000001 /* IslandifyWidgetExtension */,
+				302000000000000000000001 /* IslandifyTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		500000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		500000000000000000000007 /* Widget Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		500000000000000000000010 /* Test Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		500000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			600000000000000000000001 /* IslandifyAppModel.swift in Sources */,
+			600000000000000000000002 /* IslandifyApp.swift in Sources */,
+			600000000000000000000003 /* ContentView.swift in Sources */,
+			600000000000000000000005 /* LocalStore.swift in Sources */,
+			600000000000000000000006 /* PreviewData.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+		500000000000000000000005 /* Widget Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			600000000000000000000004 /* IslandifyWidgetBundle.swift in Sources */,
+			600000000000000000000005 /* LocalStore.swift in Sources */,
+			600000000000000000000006 /* PreviewData.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+		500000000000000000000009 /* Test Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			600000000000000000000007 /* LocalStoreTests.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		800000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 301000000000000000000001 /* IslandifyWidgetExtension */; targetProxy = 700000000000000000000002 /* PBXContainerItemProxy */; };
+		800000000000000000000002 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 300000000000000000000001 /* Islandify */; targetProxy = 700000000000000000000001 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		201000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			ALWAYS_SEARCH_USER_PATHS = NO;
+			CLANG_ENABLE_MODULES = YES;
+			CLANG_ENABLE_OBJC_ARC = YES;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Debug; };
+		201000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			ALWAYS_SEARCH_USER_PATHS = NO;
+			CLANG_ENABLE_MODULES = YES;
+			CLANG_ENABLE_OBJC_ARC = YES;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Release; };
+		410000000000000000000001 /* Debug Islandify */ = {isa = XCBuildConfiguration; buildSettings = {
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+			CODE_SIGNING_ALLOWED = NO;
+			CODE_SIGNING_REQUIRED = NO;
+			CODE_SIGN_IDENTITY = "";
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			INFOPLIST_FILE = Islandify/Resources/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+		}; name = Debug; };
+		410000000000000000000002 /* Release Islandify */ = {isa = XCBuildConfiguration; buildSettings = {
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+			CODE_SIGNING_ALLOWED = NO;
+			CODE_SIGNING_REQUIRED = NO;
+			CODE_SIGN_IDENTITY = "";
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			INFOPLIST_FILE = Islandify/Resources/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_OPTIMIZATION_LEVEL = "-O";
+		}; name = Release; };
+		411000000000000000000001 /* Debug Widget */ = {isa = XCBuildConfiguration; buildSettings = {
+			APPLICATION_EXTENSION_API_ONLY = YES;
+			CODE_SIGNING_ALLOWED = NO;
+			CODE_SIGNING_REQUIRED = NO;
+			CODE_SIGN_IDENTITY = "";
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			INFOPLIST_FILE = IslandifyWidget/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.widget;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SKIP_INSTALL = YES;
+			SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+		}; name = Debug; };
+		411000000000000000000002 /* Release Widget */ = {isa = XCBuildConfiguration; buildSettings = {
+			APPLICATION_EXTENSION_API_ONLY = YES;
+			CODE_SIGNING_ALLOWED = NO;
+			CODE_SIGNING_REQUIRED = NO;
+			CODE_SIGN_IDENTITY = "";
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			INFOPLIST_FILE = IslandifyWidget/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.widget;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SKIP_INSTALL = YES;
+			SWIFT_OPTIMIZATION_LEVEL = "-O";
+		}; name = Release; };
+		412000000000000000000001 /* Debug Tests */ = {isa = XCBuildConfiguration; buildSettings = {
+			BUNDLE_LOADER = "$(TEST_HOST)";
+			CODE_SIGNING_ALLOWED = NO;
+			CODE_SIGNING_REQUIRED = NO;
+			CODE_SIGN_IDENTITY = "";
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			INFOPLIST_FILE = IslandifyTests/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.tests;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Islandify.app/Islandify";
+			TEST_TARGET_NAME = Islandify;
+		}; name = Debug; };
+		412000000000000000000002 /* Release Tests */ = {isa = XCBuildConfiguration; buildSettings = {
+			BUNDLE_LOADER = "$(TEST_HOST)";
+			CODE_SIGNING_ALLOWED = NO;
+			CODE_SIGNING_REQUIRED = NO;
+			CODE_SIGN_IDENTITY = "";
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			INFOPLIST_FILE = IslandifyTests/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+			PRODUCT_BUNDLE_IDENTIFIER = com.islandify.app.tests;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_OPTIMIZATION_LEVEL = "-O";
+			TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Islandify.app/Islandify";
+			TEST_TARGET_NAME = Islandify;
+		}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		200000000000000000000001 /* Build configuration list for PBXProject "Islandify" */ = {isa = XCConfigurationList; buildConfigurations = (
+			201000000000000000000001 /* Debug */,
+			201000000000000000000002 /* Release */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		400000000000000000000001 /* Build configuration list for PBXNativeTarget "Islandify" */ = {isa = XCConfigurationList; buildConfigurations = (
+			410000000000000000000001 /* Debug Islandify */,
+			410000000000000000000002 /* Release Islandify */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		400000000000000000000002 /* Build configuration list for PBXNativeTarget "IslandifyWidgetExtension" */ = {isa = XCConfigurationList; buildConfigurations = (
+			411000000000000000000001 /* Debug Widget */,
+			411000000000000000000002 /* Release Widget */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		400000000000000000000003 /* Build configuration list for PBXNativeTarget "IslandifyTests" */ = {isa = XCConfigurationList; buildConfigurations = (
+			412000000000000000000001 /* Debug Tests */,
+			412000000000000000000002 /* Release Tests */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = F00000000000000000000001 /* Project object */;
+}

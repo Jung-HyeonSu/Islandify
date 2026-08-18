@@ -1,0 +1,21 @@
+# Project safety defaults for commands that are difficult to recover from.
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "forbidden",
+    justification = "Use an explicitly scoped, recoverable cleanup instead of recursive force deletion.",
+    match = ["rm -rf /tmp/islandify-cache"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Preserve user changes; use a targeted, recoverable operation or ask the user first.",
+    match = ["git reset --hard HEAD"],
+)
+
+prefix_rule(
+    pattern = ["git", "checkout", "--"],
+    decision = "forbidden",
+    justification = "Do not discard worktree changes implicitly; inspect the diff and use a targeted patch.",
+    match = ["git checkout -- README.md"],
+)

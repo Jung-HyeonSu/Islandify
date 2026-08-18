@@ -1,0 +1,17 @@
+{
+  "description": "Validate the checked-in Islandify Codex harness when a turn stops.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/.codex/hooks/validate_harness.sh\"",
+            "timeout": 30,
+            "statusMessage": "Validating Islandify harness"
+          }
+        ]
+      }
+    ]
+  }
+}
