@@ -259,7 +259,8 @@ public enum TimerEngine {
             compactTrailing: value,
             expandedDetails: [state.configuration.name, value, "Progress \(percent)"],
             completionMessage: state.configuration.presentation.completionMessage,
-            accessibilityLabel: "\(state.configuration.name), \(value), \(phase.rawValue)"
+            accessibilityLabel: "\(state.configuration.name), \(value), \(phase.rawValue)",
+            countdownEndDate: state.phase == .active ? state.endDate : nil
         )
     }
 }

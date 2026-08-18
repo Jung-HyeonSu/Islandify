@@ -5,7 +5,12 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            TimerFeatureView()
+            TabView {
+                TimerFeatureView()
+                    .tabItem { Label("Timer", systemImage: "timer") }
+                TravelFeatureView()
+                    .tabItem { Label("Travel", systemImage: "airplane.departure") }
+            }
             .navigationTitle("Islandify")
         }
     }

@@ -18,7 +18,7 @@ struct IslandifyLiveActivityWidget: Widget {
                         Text(state.title)
                             .font(.headline)
                             .lineLimit(1)
-                        Text(state.primaryValue)
+                        IslandifyDynamicValue(state: state)
                             .font(.title3.monospacedDigit().weight(.semibold))
                             .lineLimit(1)
                     }
@@ -42,9 +42,8 @@ struct IslandifyLiveActivityWidget: Widget {
             } compactLeading: {
                 IslandifyCompactText(state.compactLeading, icon: state.icon)
             } compactTrailing: {
-                Text(state.compactTrailing)
+                IslandifyDynamicValue(state: state)
                     .font(.caption2.monospacedDigit().weight(.semibold))
-                    .lineLimit(1)
             } minimal: {
                 IslandifyCompactText(state.compactTrailing, icon: state.icon)
             }
@@ -65,7 +64,7 @@ private struct IslandifyLockScreenView: View {
                 Text(state.title)
                     .font(.headline)
                     .lineLimit(1)
-                Text(state.primaryValue)
+                IslandifyDynamicValue(state: state)
                     .font(.title3.monospacedDigit().weight(.semibold))
                     .lineLimit(1)
                 if let secondaryValue = state.secondaryValue, !secondaryValue.isEmpty {
@@ -83,6 +82,21 @@ private struct IslandifyLockScreenView: View {
         .padding(.vertical, 4)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(state.accessibilityLabel)
+    }
+}
+
+@available(iOS 16.1, *)
+private struct IslandifyDynamicValue: View {
+    let state: ActivityPresentationState
+
+    var body: some View {
+        if let endDate = state.countdownEndDate, state.phase == .active {
+            Text(timerInterval: Date()...endDate, countsDown: true)
+                .accessibilityLabel(state.accessibilityLabel)
+        } else {
+            Text(state.primaryValue)
+                .accessibilityLabel(state.accessibilityLabel)
+        }
     }
 }
 

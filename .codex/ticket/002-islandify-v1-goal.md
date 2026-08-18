@@ -46,10 +46,10 @@ The product is not an unrestricted Dynamic Island drawing tool. It is a small, a
 
 ### M3 — Travel D-day
 
-- [ ] Configure trip name, destination, departure date/time, icon, and theme.
-- [ ] Implement D-30/D-7/D-1, D-DAY, pre-departure hourly countdown, and post-departure `여행 시작` states with timezone-safe date handling.
-- [ ] Render compact, minimal, expanded, and Lock Screen states with a deep link to trip details.
-- [ ] Add tests for calendar-day boundaries, time-of-day transition, past dates, and timezone behavior.
+- [x] Configure trip name, destination, departure date/time, icon, and theme.
+- [x] Implement D-30/D-7/D-1, D-DAY, pre-departure hourly countdown, and post-departure `여행 시작` states with timezone-safe date handling.
+- [x] Render compact, minimal, expanded, and Lock Screen states with a deep link to trip details.
+- [x] Add tests for calendar-day boundaries, time-of-day transition, past dates, and timezone behavior.
 
 ### M4 — Relationship D+
 
@@ -100,5 +100,7 @@ The goal is complete only when M0–M7 are implemented or an explicitly document
 - M1 verification: `swift test` built the Foundation domain and conditional Xcode tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all Swift sources; `plutil -lint` passed plist, entitlements, and project files; `git diff --check` passed. ActivityKit/WidgetKit type-checking and runtime surface review remain pending until full Xcode is selected.
 - M2 countdown timer: complete. Added validated 1-minute–8-hour configurations, absolute-date timer state/reducer operations, pause/resume/reset/end/+1 minute, completion reconciliation, progress and compact duration formatting, device-local active timer persistence, Live Activity authorization/duplicate handling adapter, and SwiftUI timer configuration/control UI.
 - M2 verification: `swift test` compiled the Foundation timer domain and conditional `TimerDomainTests` (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Full iOS type-check/build, Dynamic Island rendering, background suspension, alert sound playback, and simulator interaction remain pending until full Xcode is selected.
-- App implementation: M0 through M2 complete; M3 and later milestones remain in progress.
+- M3 travel D-day: complete. Added validated trip/destination/timezone configuration, departure-time calendar-day calculator with D-30/D-7/D-1/D-DAY/hour-minute/여행 시작 states, persisted IANA timezone handling, travel presentation mapping with absolute countdown end date, SwiftUI configuration/status screen, local persistence, and Live Activity/deep-link projection through the shared renderer.
+- M3 verification: `swift test` built the travel and relationship Foundation sources (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Full ActivityKit/WidgetKit type-check, timezone runtime behavior across device settings, and simulator UI/deep-link interaction remain pending until full Xcode is selected.
+- App implementation: M0 through M3 complete; M4 and later milestones remain in progress.
 - Environment: full Xcode is not selected; `xcodebuild -version` exits because the active developer directory is Command Line Tools.

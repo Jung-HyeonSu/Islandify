@@ -206,6 +206,7 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
     public var completionMessage: String
     public var accessibilityLabel: String
     public var staleDate: Date?
+    public var countdownEndDate: Date?
 
     public init(
         kind: ActivityKind,
@@ -222,7 +223,8 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
         expandedDetails: [String] = [],
         completionMessage: String = "Done",
         accessibilityLabel: String? = nil,
-        staleDate: Date? = nil
+        staleDate: Date? = nil,
+        countdownEndDate: Date? = nil
     ) {
         self.kind = kind
         self.phase = phase
@@ -239,6 +241,7 @@ public struct ActivityPresentationState: Codable, Hashable, Sendable {
         self.completionMessage = completionMessage
         self.accessibilityLabel = accessibilityLabel ?? [title, primaryValue, secondaryValue].compactMap { $0 }.joined(separator: ", ")
         self.staleDate = staleDate
+        self.countdownEndDate = countdownEndDate
     }
 
     public var isTerminal: Bool {
