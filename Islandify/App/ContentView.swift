@@ -10,6 +10,8 @@ struct ContentView: View {
                     .tabItem { Label("Timer", systemImage: "timer") }
                 TravelFeatureView()
                     .tabItem { Label("Travel", systemImage: "airplane.departure") }
+                RelationshipFeatureView()
+                    .tabItem { Label("Together", systemImage: "heart.fill") }
             }
             .navigationTitle("Islandify")
         }

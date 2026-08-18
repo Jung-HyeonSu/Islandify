@@ -53,10 +53,10 @@ The product is not an unrestricted Dynamic Island drawing tool. It is a small, a
 
 ### M4 — Relationship D+
 
-- [ ] Configure anniversary name, start date, nickname, icon/emoji/photo placeholder, color, and D+0 versus D+1 counting.
-- [ ] Render current day count, next 100-day/annual milestone, and anniversary message in the app and Live Activity.
-- [ ] Add local milestone notification scheduling only; do not add accounts or sharing.
-- [ ] Add tests for inclusive/exclusive day counting, leap years, locale/date formatting, and next-milestone calculation.
+- [x] Configure anniversary name, start date, nickname, icon/emoji/photo placeholder, color, and D+0 versus D+1 counting.
+- [x] Render current day count, next 100-day/annual milestone, and anniversary message in the app and Live Activity.
+- [x] Add local milestone notification scheduling only; do not add accounts or sharing.
+- [x] Add tests for inclusive/exclusive day counting, leap years, locale/date formatting, and next-milestone calculation.
 
 ### M5 — Running
 
@@ -102,5 +102,7 @@ The goal is complete only when M0–M7 are implemented or an explicitly document
 - M2 verification: `swift test` compiled the Foundation timer domain and conditional `TimerDomainTests` (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Full iOS type-check/build, Dynamic Island rendering, background suspension, alert sound playback, and simulator interaction remain pending until full Xcode is selected.
 - M3 travel D-day: complete. Added validated trip/destination/timezone configuration, departure-time calendar-day calculator with D-30/D-7/D-1/D-DAY/hour-minute/여행 시작 states, persisted IANA timezone handling, travel presentation mapping with absolute countdown end date, SwiftUI configuration/status screen, local persistence, and Live Activity/deep-link projection through the shared renderer.
 - M3 verification: `swift test` built the travel and relationship Foundation sources (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Full ActivityKit/WidgetKit type-check, timezone runtime behavior across device settings, and simulator UI/deep-link interaction remain pending until full Xcode is selected.
-- App implementation: M0 through M3 complete; M4 and later milestones remain in progress.
+- M4 relationship D+: complete. Added D+0/D+1 counting, IANA timezone-aware calendar math, leap-year handling, next 100/200/300-day and annual milestones, anniversary message/presentation, device-local notification planning and UserNotifications scheduling, SwiftUI configuration/status screen, persistence, and shared Live Activity projection.
+- M4 verification: `swift test` built the relationship domain and conditional tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Actual notification permission delivery and full iOS ActivityKit/UI runtime checks remain pending until full Xcode/device or simulator is available.
+- App implementation: M0 through M4 complete; M5 and later milestones remain in progress.
 - Environment: full Xcode is not selected; `xcodebuild -version` exits because the active developer directory is Command Line Tools.

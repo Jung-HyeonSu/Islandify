@@ -5,17 +5,21 @@ import SwiftUI
 final class IslandifyAppModel: ObservableObject {
     @Published private(set) var activeTimer: TimerState?
     @Published private(set) var activeTravel: TravelConfiguration?
+    @Published private(set) var activeRelationship: RelationshipConfiguration?
     @Published private(set) var now = Date.now
     @Published var message: String?
 
     private let store: JSONLocalStore
     private let activityManager: LiveActivityManager
+    private let notificationScheduler: LocalNotificationScheduler
     private var displayTimer: Timer?
     private var lastTravelKind: TravelStateKind?
+    private var lastRelationshipDayCount: Int?
 
     private enum StoreKey {
         static let activeTimer = "active-timer"
         static let activeTravel = "active-travel"
+        static let activeRelationship = "active-relationship"
     }
 
     init() {
@@ -24,9 +28,11 @@ final class IslandifyAppModel: ObservableObject {
         let directory = applicationSupport.appendingPathComponent("Islandify", isDirectory: true)
         self.store = JSONLocalStore(directoryURL: directory)
         self.activityManager = LiveActivityManager()
+        self.notificationScheduler = LocalNotificationScheduler()
 
         loadTimer()
         loadTravel()
+        loadRelationship()
         displayTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.refresh()
@@ -60,6 +66,15 @@ final class IslandifyAppModel: ObservableObject {
                 Task { try? await activityManager.update(presentation: presentation) }
             }
         }
+
+        if let activeRelationship {
+            let relationshipSnapshot = RelationshipCalculator.snapshot(for: activeRelationship, at: date)
+            if relationshipSnapshot.dayCount != lastRelationshipDayCount {
+                lastRelationshipDayCount = relationshipSnapshot.dayCount
+                let presentation = RelationshipCalculator.presentation(for: activeRelationship, at: date)
+                Task { try? await activityManager.update(presentation: presentation) }
+            }
+        }
     }
 
     func startTimer(
@@ -71,7 +86,7 @@ final class IslandifyAppModel: ObservableObject {
         progressStyle: ProgressStyle,
         autoEnd: Bool
     ) async {
-        guard activeTimer == nil && activeTravel == nil else {
+        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil else {
             message = "End the current activity before starting another one."
             return
         }
@@ -160,7 +175,7 @@ final class IslandifyAppModel: ObservableObject {
         iconText: String,
         theme: IslandifyTheme
     ) async {
-        guard activeTimer == nil && activeTravel == nil else {
+        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil else {
             message = "End the current activity before starting another one."
             return
         }
@@ -205,6 +220,65 @@ final class IslandifyAppModel: ObservableObject {
         await resetTravel()
     }
 
+    func startRelationship(
+        name: String,
+        nickname: String,
+        startDate: Date,
+        timeZoneIdentifier: String,
+        iconText: String,
+        theme: IslandifyTheme,
+        countingMode: RelationshipCountingMode,
+        notificationsEnabled: Bool
+    ) async {
+        guard activeTimer == nil && activeTravel == nil && activeRelationship == nil else {
+            message = "End the current activity before starting another one."
+            return
+        }
+
+        let icon = iconText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? ActivityIcon.heart
+            : ActivityIcon(emoji: iconText)
+        let configuration = RelationshipConfiguration(
+            name: name,
+            startDate: startDate,
+            timeZoneIdentifier: timeZoneIdentifier,
+            nickname: nickname,
+            icon: icon,
+            theme: theme,
+            countingMode: countingMode,
+            notificationsEnabled: notificationsEnabled
+        )
+        activeRelationship = configuration
+        lastRelationshipDayCount = RelationshipCalculator.dayCount(for: configuration, at: .now)
+        persistRelationship()
+        message = nil
+
+        do {
+            try await activityManager.start(presentation: RelationshipCalculator.presentation(for: configuration, at: .now))
+        } catch {
+            message = error.localizedDescription
+        }
+
+        if notificationsEnabled {
+            let plans = RelationshipNotificationPlan.upcoming(for: configuration, at: .now)
+            await notificationScheduler.schedule(plans: plans, timeZoneIdentifier: timeZoneIdentifier)
+        }
+    }
+
+    func resetRelationship() async {
+        guard let activeRelationship else { return }
+        let plans = RelationshipNotificationPlan.upcoming(for: activeRelationship, at: .now)
+        notificationScheduler.cancel(plans: plans)
+        await activityManager.end(presentation: RelationshipCalculator.presentation(for: activeRelationship, at: .now))
+        self.activeRelationship = nil
+        self.lastRelationshipDayCount = nil
+        try? store.removeValue(forKey: StoreKey.activeRelationship)
+    }
+
+    func endRelationship() async {
+        await resetRelationship()
+    }
+
     private func loadTimer() {
         do {
             if let stored = try store.load(TimerState.self, forKey: StoreKey.activeTimer) {
@@ -228,6 +302,17 @@ final class IslandifyAppModel: ObservableObject {
         }
     }
 
+    private func loadRelationship() {
+        do {
+            if let stored = try store.load(RelationshipConfiguration.self, forKey: StoreKey.activeRelationship) {
+                activeRelationship = stored
+                lastRelationshipDayCount = RelationshipCalculator.dayCount(for: stored, at: .now)
+            }
+        } catch {
+            message = "Saved relationship counter could not be loaded."
+        }
+    }
+
     private func persistTimer() {
         guard let activeTimer else { return }
         do {
@@ -243,6 +328,15 @@ final class IslandifyAppModel: ObservableObject {
             try store.save(activeTravel, forKey: StoreKey.activeTravel)
         } catch {
             message = "Trip could not be saved on this device."
+        }
+    }
+
+    private func persistRelationship() {
+        guard let activeRelationship else { return }
+        do {
+            try store.save(activeRelationship, forKey: StoreKey.activeRelationship)
+        } catch {
+            message = "Relationship counter could not be saved on this device."
         }
     }
 }
