@@ -68,10 +68,10 @@ The product is not an unrestricted Dynamic Island drawing tool. It is a small, a
 
 ### M6 — Constrained personalization
 
-- [ ] Let users combine title, short description, icon/emoji, number format, color, progress bar/circle/dots, alignment, compact leading/trailing values, expanded details, and completion message within predefined slots.
-- [ ] Provide the six baseline themes without allowing arbitrary system-region drawing.
-- [ ] Preview compact, minimal, expanded, and Lock Screen layouts before starting an activity.
-- [ ] Persist the selected composition per activity and supply defaults for every activity kind.
+- [x] Let users combine title, short description, icon/emoji, number format, color, progress bar/circle/dots, alignment, compact leading/trailing values, expanded details, and completion message within predefined slots.
+- [x] Provide the six baseline themes without allowing arbitrary system-region drawing.
+- [x] Preview compact, minimal, expanded, and Lock Screen layouts before starting an activity.
+- [x] Persist the selected composition per activity and supply defaults for every activity kind.
 
 ### M7 — Hardening and handoff
 
@@ -106,5 +106,7 @@ The goal is complete only when M0–M7 are implemented or an explicitly document
 - M4 verification: `swift test` built the relationship domain and conditional tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Actual notification permission delivery and full iOS ActivityKit/UI runtime checks remain pending until full Xcode/device or simulator is available.
 - M5 running: complete. Added pure injected location-sample distance/pace/calorie/session reducers, CoreLocation permission/location adapter, start/pause/resume/end UI, denied/restricted/unavailable time-only fallback, local run summaries with optional memo, active-run persistence, and shared Live Activity projection.
 - M5 verification: `swift test` built the running domain and conditional tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Actual GPS samples, background location delivery, permission prompts, and full ActivityKit/UI runtime checks remain pending until full Xcode and simulator/device access.
-- App implementation: M0 through M5 complete; M6 and M7 remain in progress.
+- M6 constrained personalization: complete. Added validated semantic composition editing for title/description/icon/emoji/theme/number format/progress/alignment/fixed slots/expanded details/completion message, four-surface previews, six baseline themes, per-kind local composition persistence, and application of saved compositions to timer/travel/relationship/running projections.
+- M6 verification: `swift test` built the customization domain and conditional tests (0 runnable cases under CLT because XCTest is unavailable); `swiftc -frontend -parse` passed all sources; plist/pbxproj lint and `git diff --check` passed. Full SwiftUI Dynamic Type rendering and pre-start interaction checks remain pending until full Xcode/simulator access.
+- App implementation: M0 through M6 complete; M7 hardening and handoff remain in progress.
 - Environment: full Xcode is not selected; `xcodebuild -version` exits because the active developer directory is Command Line Tools.

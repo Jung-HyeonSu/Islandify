@@ -14,6 +14,7 @@ public struct TravelConfiguration: Codable, Hashable, Sendable {
     public var timeZoneIdentifier: String
     public var icon: ActivityIcon
     public var theme: IslandifyTheme
+    public var presentation: PresentationConfiguration
 
     public init(
         id: UUID = UUID(),
@@ -22,7 +23,8 @@ public struct TravelConfiguration: Codable, Hashable, Sendable {
         departureDate: Date,
         timeZoneIdentifier: String = "UTC",
         icon: ActivityIcon = .airplane,
-        theme: IslandifyTheme = .travelBlue
+        theme: IslandifyTheme = .travelBlue,
+        presentation: PresentationConfiguration? = nil
     ) throws {
         let trimmedTripName = tripName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTripName.isEmpty else { throw TravelValidationError.emptyTripName }
@@ -41,6 +43,18 @@ public struct TravelConfiguration: Codable, Hashable, Sendable {
         self.timeZoneIdentifier = timeZoneIdentifier
         self.icon = icon
         self.theme = theme
+        self.presentation = presentation ?? PresentationConfiguration(
+            title: trimmedTripName,
+            description: trimmedDestination,
+            icon: icon,
+            theme: theme,
+            numberFormat: .dayCount,
+            progressStyle: .hidden,
+            compactLeading: .icon,
+            compactTrailing: .primaryValue,
+            expandedDetails: [.title, .primaryValue, .secondaryValue],
+            completionMessage: "여행 시작"
+        )
     }
 
     public init(
@@ -106,6 +120,7 @@ public struct TravelConfiguration: Codable, Hashable, Sendable {
         case timeZoneIdentifier
         case icon
         case theme
+        case presentation
     }
 
     public init(from decoder: Decoder) throws {
@@ -117,7 +132,8 @@ public struct TravelConfiguration: Codable, Hashable, Sendable {
             departureDate: container.decode(Date.self, forKey: .departureDate),
             timeZoneIdentifier: container.decode(String.self, forKey: .timeZoneIdentifier),
             icon: container.decode(ActivityIcon.self, forKey: .icon),
-            theme: container.decode(IslandifyTheme.self, forKey: .theme)
+            theme: container.decode(IslandifyTheme.self, forKey: .theme),
+            presentation: container.decodeIfPresent(PresentationConfiguration.self, forKey: .presentation)
         )
     }
 
@@ -130,6 +146,7 @@ public struct TravelConfiguration: Codable, Hashable, Sendable {
         try container.encode(timeZoneIdentifier, forKey: .timeZoneIdentifier)
         try container.encode(icon, forKey: .icon)
         try container.encode(theme, forKey: .theme)
+        try container.encode(presentation, forKey: .presentation)
     }
 }
 

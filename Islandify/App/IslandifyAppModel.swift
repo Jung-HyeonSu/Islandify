@@ -9,6 +9,7 @@ final class IslandifyAppModel: ObservableObject {
     @Published private(set) var activeRun: RunningState?
     @Published private(set) var runRecords: [RunRecord] = []
     @Published private(set) var locationAuthorization: LocationAuthorizationState = .notDetermined
+    @Published private(set) var compositions: [ActivityKind: PresentationConfiguration] = [:]
     @Published private(set) var now = Date.now
     @Published var message: String?
 
@@ -26,6 +27,7 @@ final class IslandifyAppModel: ObservableObject {
         static let activeRelationship = "active-relationship"
         static let activeRun = "active-run"
         static let runRecords = "run-records"
+        static let compositions = "compositions"
     }
 
     init() {
@@ -42,6 +44,7 @@ final class IslandifyAppModel: ObservableObject {
         loadRelationship()
         loadRun()
         loadRunRecords()
+        loadCompositions()
         displayTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.refresh()
@@ -116,7 +119,8 @@ final class IslandifyAppModel: ObservableObject {
                 theme: theme,
                 alertSound: alertSound,
                 progressStyle: progressStyle,
-                autoEnd: autoEnd
+                autoEnd: autoEnd,
+                presentation: compositions[.timer]
             )
             let state = TimerEngine.start(configuration: configuration, at: .now)
             activeTimer = state
@@ -204,7 +208,8 @@ final class IslandifyAppModel: ObservableObject {
                 departureDate: departureDate,
                 timeZoneIdentifier: timeZoneIdentifier,
                 icon: icon,
-                theme: theme
+                theme: theme,
+                presentation: compositions[.travel]
             )
             activeTravel = configuration
             lastTravelKind = TravelCalculator.state(for: configuration, at: .now).kind
@@ -260,6 +265,7 @@ final class IslandifyAppModel: ObservableObject {
             icon: icon,
             theme: theme,
             countingMode: countingMode,
+            presentation: compositions[.relationship],
             notificationsEnabled: notificationsEnabled
         )
         activeRelationship = configuration
@@ -302,7 +308,7 @@ final class IslandifyAppModel: ObservableObject {
         let icon = iconText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? ActivityIcon.running
             : ActivityIcon(emoji: iconText)
-        let configuration = RunningConfiguration(name: name, icon: icon, theme: theme)
+        let configuration = RunningConfiguration(name: name, icon: icon, theme: theme, presentation: compositions[.running])
         let state = RunningCalculator.start(configuration: configuration, at: .now)
         activeRun = state
         persistRun()
@@ -435,6 +441,18 @@ final class IslandifyAppModel: ObservableObject {
         }
     }
 
+    private func loadCompositions() {
+        do {
+            let stored = try store.load([String: PresentationConfiguration].self, forKey: StoreKey.compositions) ?? [:]
+            compositions = Dictionary(uniqueKeysWithValues: stored.compactMap { key, value in
+                guard let kind = ActivityKind(rawValue: key) else { return nil }
+                return (kind, value)
+            })
+        } catch {
+            message = "Saved customization could not be loaded."
+        }
+    }
+
     private func persistTimer() {
         guard let activeTimer else { return }
         do {
@@ -476,6 +494,22 @@ final class IslandifyAppModel: ObservableObject {
             try store.save(runRecords, forKey: StoreKey.runRecords)
         } catch {
             message = "Run history could not be saved on this device."
+        }
+    }
+
+    func composition(for kind: ActivityKind) -> PresentationConfiguration {
+        compositions[kind] ?? PresentationConfiguration.default(for: kind)
+    }
+
+    func saveComposition(_ configuration: PresentationConfiguration, for kind: ActivityKind) {
+        let normalized = PresentationComposer.normalized(configuration)
+        compositions[kind] = normalized
+        let stored = Dictionary(uniqueKeysWithValues: compositions.map { ($0.key.rawValue, $0.value) })
+        do {
+            try store.save(stored, forKey: StoreKey.compositions)
+            message = "Saved \(kind.rawValue) layout."
+        } catch {
+            message = "Customization could not be saved on this device."
         }
     }
 }

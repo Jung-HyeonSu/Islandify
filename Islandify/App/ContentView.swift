@@ -14,6 +14,8 @@ struct ContentView: View {
                     .tabItem { Label("Together", systemImage: "heart.fill") }
                 RunningFeatureView()
                     .tabItem { Label("Run", systemImage: "figure.run") }
+                CustomizationFeatureView()
+                    .tabItem { Label("Style", systemImage: "slider.horizontal.3") }
             }
             .navigationTitle("Islandify")
         }
