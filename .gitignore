@@ -3,6 +3,7 @@ DerivedData/
 .build/
 build/
 xcuserdata/
+.idea/
 *.xcuserstate
 
 # Swift Package Manager metadata
