@@ -1,98 +1,117 @@
-# Codex 하네스 참고 문서
+# Islandify
 
-이 문서는 Codex 하네스 구조를 정리할 때 참고한 공식 OpenAI 문서와 저장소 적용 위치를 기록한다. 실제 작업 지침의 정본은 루트 `../AGENTS.md`와 `.agents/**`, `.codex/**` 이며, 이 파일 자체는 Codex가 자동으로 로드하는 지침 파일이 아니다.
+Islandify는 사용자의 현재 시간 기반 활동을 iPhone 앱과 Dynamic Island, 잠금 화면 Live Activity에서 한눈에 보여주는 로컬 우선 iOS 앱입니다. 타이머, 여행 D-day, 관계 D+, 러닝을 하나의 활동 모델로 다루며, 시스템이 제공하는 Live Activity 영역 안에서 glanceable한 정보를 제공합니다.
 
-## 공식 문서와 적용 위치
+모든 핵심 상태는 기기에 저장하고 절대 날짜·시각을 기준으로 다시 계산합니다. 따라서 앱이 백그라운드로 전환되거나 일시 중단되어도 타이머와 활동 상태를 복원할 수 있습니다.
 
-| 영역 | 저장소 위치 | 공식 문서 | 적용 기준 |
-|---|---|---|---|
-| 공통 작업 지침 | `AGENTS.md` | [Custom instructions with AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md) | 세션 진입 원칙과 항상 지켜야 할 최소 제약만 둔다. |
-| 반복 작업 절차 | `.agents/skills/<skill>/SKILL.md` | [Build skills](https://learn.chatgpt.com/docs/build-skills) | 영역별 절차와 상세 지식은 Skill로 분리하고, 필요한 Skill만 선택해 로드한다. |
-| 프로젝트 설정 | `.codex/config.toml` | [Config basics](https://learn.chatgpt.com/docs/config-file/config-basic) | 팀 공통 Codex 설정과 MCP·Subagent 공통 설정을 둘 때 사용한다. |
-| MCP | `.codex/config.toml`의 `mcp_servers` | [Model Context Protocol](https://learn.chatgpt.com/docs/extend/mcp) | 팀 공통 MCP를 등록한다. 비밀값은 파일에 넣지 않고 환경 변수로 전달한다. |
-| Hooks | `.codex/hooks.json`, `.codex/hooks/**` | [Hooks](https://learn.chatgpt.com/docs/hooks) | 경로 차단이나 구조 검증처럼 결정적인 검사만 자동화한다. 의미 판단이 필요한 티켓·Skill 작성은 Hook에서 수행하지 않는다. |
-| Subagents | `.codex/agents/*.toml` | [Subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents) | 프로젝트 전용 역할이 필요할 때만 좁고 명확한 Agent를 정의한다. 파일을 만든 것만으로 실행되지는 않는다. |
-| 명령 실행 규칙 | `.codex/rules/*.rules` | [Rules](https://learn.chatgpt.com/docs/agent-configuration/rules) | 셸 명령의 허용·확인·차단 정책에만 사용한다. 코드 작성 원칙은 `AGENTS.md`와 Skill에 유지한다. |
+## 지원 기능
 
-## 저장소 고유 구성
+- **Timer**: 일시정지·재개·1분 추가를 지원하는 카운트다운
+- **Travel**: 목적지와 타임존을 반영한 출발 D-day
+- **Together**: 관계 시작일 기준 D+ 카운터, 기념일, 선택적 알림
+- **Run**: 위치 기반 거리·페이스·칼로리 추정과 시간만 사용하는 fallback
+- **Style**: Dynamic Island의 고정 시스템 슬롯에 맞춘 테마·표시 구성
 
-- AGENTS.md 파일 작성 참고 자료 - [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills/blob/main/CLAUDE.md)
-- `.codex/ticket/**`은 작업 계획과 기록을 보관하는 프로젝트 고유 경로다. Codex 공식 자동 로드 위치가 필요한 경우에만 읽고 갱신한다.
-- 코드·설정·DB·테스트 변경 후의 Skill 실제 생성·수정은 `$skill-creator` 절차를 따른다.
-- 세부 지침을 루트 `AGENTS.md`에 계속 추가하지 않고, 반복 가능하고 독립적인 절차는 `.agents/skills/**`로 분리한다.
-- Hooks, MCP, Subagents, 명령 규칙은 `.agents` 아래에 섞지 않고 공식 프로젝트 설정 위치인 `.codex/**`에 둔다.
+## 프로젝트 구조
 
-마지막 공식 문서 확인일: 2026-08-13
+아래 다이어그램은 버전 관리 대상 소스와 프로젝트 설정을 기준으로 정리한 현재 구조입니다. 로컬 IDE 메타데이터인 `.idea/`는 포함하지 않습니다.
 
-## Islandify 프로젝트 구조
+```mermaid
+flowchart TD
+    root["Islandify/"]
 
-Islandify는 로컬 데이터를 기반으로 타이머, 여행 D-day, 커플 D+, 러닝 정보를 앱과 Dynamic Island·잠금 화면 Live Activity에 표시하는 네이티브 SwiftUI iOS 앱이다.
+    root --> xcode["Islandify.xcodeproj/"]
+    xcode --> pbx["project.pbxproj<br/>앱·위젯·테스트 타깃"]
+    xcode --> workspace["project.xcworkspace/<br/>공유 Islandify scheme"]
 
-```text
-Islandify/
-├── Islandify.xcodeproj/                 # Xcode 프로젝트
-│   ├── project.pbxproj                  # 앱·Widget·Unit Test 타깃 설정
-│   ├── project.xcworkspace/             # Xcode workspace 정보
-│   └── xcshareddata/xcschemes/           # 공유 Islandify 빌드 scheme
-├── Islandify/                           # iOS 앱 타깃
-│   ├── App/
-│   │   ├── IslandifyApp.swift            # 앱 진입점
-│   │   ├── ContentView.swift             # Timer·Travel·Together·Run·Style 화면
-│   │   ├── IslandifyAppModel.swift       # 앱 상태·저장소·Activity 연결
-│   │   └── *FeatureView.swift             # 기능별 SwiftUI 화면
-│   ├── Services/
-│   │   ├── LiveActivityManager.swift     # ActivityKit 시작·갱신·종료
-│   │   ├── LocalNotificationScheduler.swift
-│   │   └── LocationService.swift         # Core Location 권한·샘플 수집
-│   └── Resources/
-│       ├── Info.plist                    # Live Activity·위치 권한 설정
-│       └── Islandify.entitlements        # 앱 권한 및 capability 설정
-├── IslandifyWidget/                      # WidgetKit Extension 타깃
-│   ├── IslandifyWidgetBundle.swift       # Widget bundle 진입점
-│   ├── IslandifyLiveActivityWidget.swift # Dynamic Island·Lock Screen UI
-│   └── Info.plist
-├── Shared/                               # 앱과 Widget이 함께 사용하는 코드
-│   ├── ActivityContracts/
-│   │   └── IslandifyActivityAttributes.swift # ActivityAttributes·ContentState
-│   ├── Domain/
-│   │   ├── ActivityPresentation.swift    # 고정 슬롯 기반 공통 표시 모델
-│   │   ├── TimerDomain.swift              # 절대 시각 기반 타이머 계산
-│   │   ├── TravelDomain.swift             # 타임존 안전 여행 D-day 계산
-│   │   ├── RelationshipDomain.swift       # D+·기념일·알림 계산
-│   │   ├── RunningDomain.swift            # 거리·페이스·칼로리 계산
-│   │   ├── CustomizationDomain.swift      # 테마·슬롯·미리보기 조합
-│   │   ├── DateMath.swift                 # 날짜·달력 계산
-│   │   ├── TimeFormatting.swift           # 시간·거리·페이스 포맷터
-│   │   ├── LocalStore.swift               # 버전 관리 로컬 JSON 저장소
-│   │   ├── PreviewData.swift              # 미리보기·샘플 데이터
-│   │   └── TravelPresentation.swift       # 여행 상태 표시 변환
-│   └── DomainChecks/main.swift            # XCTest 없이 실행하는 도메인 점검
-├── IslandifyTests/                       # 순수 도메인 Unit Test
-│   ├── *DomainTests.swift                 # Timer·Travel·Relationship·Running 테스트
-│   ├── PresentationTests.swift            # 표시 모델·테마·접근성 테스트
-│   ├── LocalStoreTests.swift              # 저장소·마이그레이션 테스트
-│   └── StabilityDomainTests.swift         # 만료·잘림·권한 fallback 테스트
-├── .agents/skills/                        # Islandify 전용 작업 지침
-├── .codex/                                # 티켓·검증 hook·agent 설정
-├── Package.swift                          # 도메인 Swift Package 테스트 설정
-├── AGENTS.md                              # 저장소 작업 규칙
-└── README.md                              # 프로젝트 및 작업 참고 문서
+    root --> app["Islandify/<br/>iOS 앱 타깃"]
+    app --> appLayer["App/"]
+    appLayer --> appEntry["IslandifyApp.swift<br/>앱 진입점"]
+    appLayer --> content["ContentView.swift<br/>Timer·Travel·Together·Run·Style 탭"]
+    appLayer --> model["IslandifyAppModel.swift<br/>앱 상태·영속성·Activity 연결"]
+    appLayer --> timerView["TimerFeatureView.swift"]
+    appLayer --> travelView["TravelFeatureView.swift"]
+    appLayer --> relationshipView["RelationshipFeatureView.swift"]
+    appLayer --> runningView["RunningFeatureView.swift"]
+    appLayer --> customizationView["CustomizationFeatureView.swift"]
+    app --> services["Services/"]
+    services --> activityManager["LiveActivityManager.swift<br/>ActivityKit lifecycle"]
+    services --> notifications["LocalNotificationScheduler.swift<br/>UserNotifications"]
+    services --> location["LocationService.swift<br/>Core Location"]
+    app --> resources["Resources/"]
+    resources --> appInfo["Info.plist"]
+    resources --> entitlements["Islandify.entitlements"]
+
+    root --> widget["IslandifyWidget/<br/>WidgetKit extension"]
+    widget --> widgetBundle["IslandifyWidgetBundle.swift"]
+    widget --> liveActivity["IslandifyLiveActivityWidget.swift<br/>Dynamic Island·Lock Screen UI"]
+    widget --> widgetInfo["Info.plist"]
+
+    root --> shared["Shared/<br/>앱·위젯 공용 소스"]
+    shared --> contracts["ActivityContracts/"]
+    contracts --> attributes["IslandifyActivityAttributes.swift<br/>ActivityAttributes·ContentState"]
+    shared --> domain["Domain/"]
+    domain --> coreDomain["TimerDomain.swift<br/>TravelDomain.swift<br/>RelationshipDomain.swift<br/>RunningDomain.swift"]
+    domain --> presentationDomain["ActivityPresentation.swift<br/>CustomizationDomain.swift<br/>TravelPresentation.swift"]
+    domain --> utilities["DateMath.swift<br/>TimeFormatting.swift<br/>LocalStore.swift<br/>PreviewData.swift"]
+    shared --> checks["DomainChecks/main.swift<br/>독립 도메인 점검 실행 파일"]
+
+    root --> tests["IslandifyTests/<br/>XCTest 단위 테스트"]
+    tests --> testFiles["Timer·Travel·Relationship·Running<br/>Customization·Presentation·LocalStore·Stability"]
+
+    root --> package["Package.swift<br/>도메인 라이브러리·점검·테스트"]
+    root --> tooling["프로젝트 작업 설정"]
+    tooling --> agents[".agents/skills/islandify-ios/"]
+    tooling --> codex[".codex/<br/>agents·hooks·rules·ticket"]
+    root --> docs["AGENTS.md · LICENSE · README.md"]
+
+    app -->|사용| shared
+    widget -->|표시| contracts
+    widget -->|렌더링 모델| domain
+    tests -->|검증| domain
 ```
 
-## 주요 구성 설명
+## 기술 스택
 
-- `Islandify/App`은 사용자의 입력과 화면 상태를 관리한다. 실제 날짜·시간·거리 계산은 `Shared/Domain`에 위임한다.
-- `Shared/ActivityContracts`의 ActivityKit 타입은 앱 타깃과 Widget Extension 타깃에 동일한 소스로 포함된다.
-- `Shared/Domain`은 가능한 한 순수 타입으로 구성되어 백그라운드 전환, 타임존, 윤년, 일시정지·재개 같은 동작을 테스트할 수 있다.
-- `IslandifyWidget`은 시스템이 제공하는 `compact`, `minimal`, `expanded`, Lock Screen 영역만 사용한다. 사용자가 Dynamic Island 시스템 영역을 임의로 그리는 방식은 지원하지 않는다.
-- 데이터는 기기 내부에만 저장한다. 계정, 서버, 네트워크, HealthKit, Apple Watch, 친구 순위, 음성 코칭은 v1 범위에 포함하지 않는다.
+| 영역 | 기술 | 적용 내용 |
+| --- | --- | --- |
+| 언어 | Swift 5 | 앱·위젯·도메인 모델 구현 |
+| 앱 UI | SwiftUI | iOS 앱 화면과 기능별 입력·상태 화면 |
+| Live Activity | ActivityKit | 활동 시작·갱신·종료와 공유 `ActivityAttributes` |
+| 위젯 UI | WidgetKit | Dynamic Island의 compact·minimal·expanded 및 잠금 화면 UI |
+| 로컬 알림 | UserNotifications | 관계 기념일 알림 예약·취소 |
+| 위치 | Core Location | 러닝 중 거리와 페이스 추정, 권한 거부 시 시간 기반 fallback |
+| 저장소 | Foundation 기반 로컬 JSON | `JSONLocalStore`를 통한 기기 내 상태 저장·마이그레이션 |
+| 테스트 | XCTest + Swift Package Manager | 순수 도메인 단위 테스트와 독립 실행형 도메인 점검 |
+| 빌드 | Xcode project + Swift Package Manager | iOS deployment target 16.1, 도메인 패키지 테스트 구성 |
 
-## 검증 명령
+## 아키텍처 원칙
+
+- 앱 화면은 SwiftUI로 구성하고, Live Activity 표현은 WidgetKit의 시스템 제공 영역만 사용합니다.
+- 앱과 위젯이 공유하는 ActivityKit 계약은 `Shared/ActivityContracts`에 둡니다.
+- 타이머·D-day·러닝 계산은 `Shared/Domain`의 순수 모델과 계산기로 분리합니다.
+- 활동의 기준 시각은 메모리의 반복 타이머가 아니라 저장된 절대 날짜·시각입니다.
+- 첫 릴리스 데이터는 기기에만 저장하며 계정·서버·네트워크·HealthKit·Watch 연동은 포함하지 않습니다.
+
+## 검증 및 실행
+
+도메인 로직은 Swift Package Manager로 빠르게 검증할 수 있습니다.
 
 ```sh
 swift test
 swift run IslandifyDomainChecks
-xcodebuild -project Islandify.xcodeproj -target Islandify -sdk iphonesimulator -configuration Debug build
-xcodebuild -project Islandify.xcodeproj -target IslandifyTests -sdk iphonesimulator -configuration Debug build
-sh .codex/hooks/verify_goal.sh --complete
+```
+
+Xcode에서 앱 타깃과 테스트를 검증하려면 다음 명령을 사용합니다.
+
+```sh
+xcodebuild -project Islandify.xcodeproj \
+  -scheme Islandify \
+  -sdk iphonesimulator \
+  -configuration Debug build
+
+xcodebuild test \
+  -project Islandify.xcodeproj \
+  -scheme Islandify \
+  -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
