@@ -10,8 +10,16 @@ struct TravelFeatureView: View {
     @State private var theme: IslandifyTheme = .travelBlue
 
     var body: some View {
-        ScrollView {
+        let copy = IslandifyCopy.current
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
+                IslandifyPageHeader(
+                    eyebrow: copy.travel,
+                    title: model.activeTravel?.tripName ?? copy.travelExampleName,
+                    subtitle: copy.travelDdayTitle,
+                    symbolName: "airplane.departure"
+                )
+
                 if let travel = model.activeTravel {
                     activeTravelCard(travel)
                 } else {
@@ -19,150 +27,157 @@ struct TravelFeatureView: View {
                 }
 
                 if let message = model.message {
-                    Label(message, systemImage: "info.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    IslandifyMessageBanner(message: message)
                 }
             }
-            .padding()
-            .frame(maxWidth: 600)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 32)
+            .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
-        .onAppear { model.refresh() }
+        .islandifyBrightPageBackground()
+        .tint(IslandifyBrightPalette.lavender)
+        .onAppear {
+            model.refresh()
+            loadSavedIcon()
+        }
+        .accessibilityIdentifier("travel-feature")
     }
 
     private var travelForm: some View {
         let copy = IslandifyCopy.current
-        return VStack(alignment: .leading, spacing: 16) {
-            Label(copy.travelDdayTitle, systemImage: "airplane.departure")
-                .font(.title2.weight(.semibold))
+        return IslandifyBrightCard(padding: 20, cornerRadius: 30) {
+            VStack(alignment: .leading, spacing: 15) {
+                Text(copy.travelDdayTitle)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(IslandifyBrightPalette.text)
 
-            TextField(copy.tripName, text: $tripName)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.tripName)
+                TextField(copy.tripName, text: $tripName)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.tripName)
 
-            TextField(copy.destination, text: $destination)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.destination)
+                TextField(copy.destination, text: $destination)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.destination)
 
-            DatePicker(copy.departure, selection: $departureDate, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
-                .accessibilityLabel(copy.departureDateAndTime)
+                DatePicker(copy.departure, selection: $departureDate, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(IslandifyBrightPalette.surfaceSoft, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .accessibilityLabel(copy.departureDateAndTime)
 
-            HStack {
-                Label(copy.timezone, systemImage: "globe")
-                Spacer()
-                TextField(copy.timezoneExample, text: $timeZoneIdentifier)
-                    .multilineTextAlignment(.trailing)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: 190)
-                    .accessibilityLabel(copy.departureTimezone)
-            }
+                HStack(spacing: 12) {
+                    Image(systemName: "globe")
+                        .foregroundStyle(IslandifyBrightPalette.lavender)
+                    Text(copy.timezone)
+                        .font(.subheadline.weight(.medium))
+                    Spacer()
+                    TextField(copy.timezoneExample, text: $timeZoneIdentifier)
+                        .textFieldStyle(.plain)
+                        .multilineTextAlignment(.trailing)
+                        .frame(maxWidth: 180)
+                        .accessibilityLabel(copy.departureTimezone)
+                }
+                .islandifyInputStyle()
 
-            HStack {
-                Label(copy.icon, systemImage: "face.smiling")
-                Spacer()
-                TextField("✈️", text: $iconText)
-                    .multilineTextAlignment(.trailing)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 72)
+                IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "✈️")
                     .accessibilityLabel(copy.tripEmoji)
-            }
 
-            Picker(copy.theme, selection: $theme) {
-                ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(copy.themeName(theme)).tag(theme)
-                }
-            }
+                IslandifyPickerRow(
+                    title: copy.theme,
+                    selection: $theme,
+                    options: IslandifyTheme.allCases.map { IslandifyPickerOption(value: $0, title: copy.themeName($0)) }
+                )
 
-            Button {
-                Task {
-                    await model.startTravel(
-                        tripName: tripName,
-                        destination: destination,
-                        departureDate: departureDate,
-                        timeZoneIdentifier: timeZoneIdentifier,
-                        iconText: iconText,
-                        theme: theme
-                    )
+                IslandifyGradientButton(title: copy.startTripCountdown) {
+                    Task {
+                        await model.startTravel(
+                            tripName: tripName,
+                            destination: destination,
+                            departureDate: departureDate,
+                            timeZoneIdentifier: timeZoneIdentifier,
+                            iconText: iconText,
+                            theme: theme
+                        )
+                    }
                 }
-            } label: {
-                Label(copy.startTripCountdown, systemImage: "play.fill")
-                    .frame(maxWidth: .infinity)
+                .disabled(model.activeTimer != nil)
+                .accessibilityHint(copy.startTripHint)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(model.activeTimer != nil)
-            .accessibilityHint(copy.startTripHint)
         }
-        .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    private func loadSavedIcon() {
+        let saved = model.composition(for: .travel)
+        if saved.icon.kind == .emoji {
+            iconText = saved.icon.value
+        }
     }
 
     private func activeTravelCard(_ configuration: TravelConfiguration) -> some View {
         let copy = IslandifyCopy.current
         let state = TravelCalculator.state(for: configuration, at: model.now)
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                Label(configuration.tripName, systemImage: configuration.icon.kind == .system ? configuration.icon.value : "airplane.departure")
-                    .font(.title2.weight(.semibold))
-                    .lineLimit(1)
-                Spacer()
-                Text(state.label)
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-            }
-
-            if state.kind == .dDay, let departureDate = state.remainingUntilDeparture.map({ model.now.addingTimeInterval($0) }) {
-                Text(timerInterval: model.now...departureDate, countsDown: true)
-                    .font(.system(size: 44, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-            } else {
-                Text(state.displayValue)
-                    .font(.system(size: 44, weight: .bold, design: .rounded))
-                    .minimumScaleFactor(0.6)
-                    .lineLimit(1)
-            }
-
-            Text(configuration.destination)
-                .font(.headline)
-                .foregroundStyle(.secondary)
-
-            HStack {
-                Text("\(copy.timezone): \(configuration.timeZoneIdentifier)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            HStack(spacing: 10) {
+                IslandifyAppIconView(icon: configuration.presentation.icon)
+                    .font(.title3)
+                    .frame(width: 38, height: 38)
+                    .background(IslandifyBrightPalette.lavender.opacity(0.12), in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(configuration.tripName)
+                        .font(.headline.weight(.semibold))
+                    Text(configuration.destination)
+                        .font(.caption)
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                }
                 Spacer()
                 Menu {
                     Button(copy.endTrip, role: .destructive) { Task { await model.endTravel() } }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .accessibilityLabel(copy.moreTripActions)
+                    Image(systemName: "ellipsis")
+                        .font(.body.weight(.bold))
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                        .frame(width: 38, height: 38)
+                        .background(IslandifyBrightPalette.surfaceSoft, in: Circle())
+                }
+                .accessibilityLabel(copy.moreTripActions)
+            }
+
+            let displayValue = state.displayValue
+            IslandifyHeroCard(
+                eyebrow: copy.travel,
+                value: displayValue,
+                detail: state.label
+            )
+            .accessibilityLabel(copy.travelAccessibility(
+                tripName: configuration.tripName,
+                destination: configuration.destination,
+                value: state.displayValue
+            ))
+
+            IslandifyBrightCard(padding: 16, cornerRadius: 22) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(copy.destination)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                    Text(configuration.destination)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(IslandifyBrightPalette.text)
+                    Text("\(copy.timezone): \(configuration.timeZoneIdentifier)")
+                        .font(.caption)
+                        .foregroundStyle(IslandifyBrightPalette.mutedText)
                 }
             }
         }
-        .padding()
-        .background(Color(hex: configuration.theme.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 20))
-        .foregroundStyle(Color(hex: configuration.theme.palette.foregroundHex))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(copy.travelAccessibility(
-            tripName: configuration.tripName,
-            destination: configuration.destination,
-            value: state.displayValue
-        ))
+        .foregroundStyle(IslandifyBrightPalette.text)
     }
 }
 
-private extension Color {
-    init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var value: UInt64 = 0
-        Scanner(string: cleaned).scanHexInt64(&value)
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255
-        )
-    }
+#Preview {
+    TravelFeatureView()
+        .environmentObject(IslandifyAppModel())
 }

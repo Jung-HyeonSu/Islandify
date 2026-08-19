@@ -129,7 +129,7 @@ final class IslandifyAppModel: ObservableObject {
                 alertSound: alertSound,
                 progressStyle: progressStyle,
                 autoEnd: autoEnd,
-                presentation: compositions[.timer]
+                presentation: presentation(for: .timer, icon: icon)
             )
             let state = TimerEngine.start(configuration: configuration, at: .now)
             activeTimer = state
@@ -218,7 +218,7 @@ final class IslandifyAppModel: ObservableObject {
                 timeZoneIdentifier: timeZoneIdentifier,
                 icon: icon,
                 theme: theme,
-                presentation: compositions[.travel]
+                presentation: presentation(for: .travel, icon: icon)
             )
             activeTravel = configuration
             lastTravelKind = TravelCalculator.state(for: configuration, at: .now).kind
@@ -274,7 +274,7 @@ final class IslandifyAppModel: ObservableObject {
             icon: icon,
             theme: theme,
             countingMode: countingMode,
-            presentation: compositions[.relationship],
+            presentation: presentation(for: .relationship, icon: icon),
             notificationsEnabled: notificationsEnabled
         )
         activeRelationship = configuration
@@ -317,7 +317,7 @@ final class IslandifyAppModel: ObservableObject {
         let icon = iconText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? ActivityIcon.running
             : ActivityIcon(emoji: iconText)
-        let configuration = RunningConfiguration(name: name, icon: icon, theme: theme, presentation: compositions[.running])
+        let configuration = RunningConfiguration(name: name, icon: icon, theme: theme, presentation: presentation(for: .running, icon: icon))
         let state = RunningCalculator.start(configuration: configuration, at: .now)
         activeRun = state
         lastRunProjectionDate = .now
@@ -550,6 +550,12 @@ final class IslandifyAppModel: ObservableObject {
 
     func composition(for kind: ActivityKind) -> PresentationConfiguration {
         compositions[kind] ?? PresentationConfiguration.default(for: kind)
+    }
+
+    private func presentation(for kind: ActivityKind, icon: ActivityIcon) -> PresentationConfiguration? {
+        guard var saved = compositions[kind] else { return nil }
+        saved.icon = icon
+        return saved
     }
 
     func saveComposition(_ configuration: PresentationConfiguration, for kind: ActivityKind) {

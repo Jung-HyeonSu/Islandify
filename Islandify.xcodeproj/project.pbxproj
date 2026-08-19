@@ -47,8 +47,11 @@
 		600000000000000000000038 /* StabilityDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000008 /* StabilityDomainTests.swift */; };
 		600000000000000000000039 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000013 /* Localization.swift */; };
 		600000000000000000000040 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000013 /* Localization.swift */; };
+		600000000000000000000043 /* BrightCoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* BrightCoreView.swift */; };
+		600000000000000000000045 /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* EmojiPickerView.swift */; };
 		600000000000000000000041 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* InfoPlist.strings */; };
 		600000000000000000000042 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000002 /* InfoPlist.strings */; };
+		600000000000000000000046 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* Assets.xcassets */; };
 		E28460213034938E00539E1E /* LocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* LocalStore.swift */; };
 		E28460223034938E00539E1E /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000002 /* PreviewData.swift */; };
 /* End PBXBuildFile section */
@@ -96,6 +99,8 @@
 		A00000000000000000000009 /* RunningFeatureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunningFeatureView.swift; sourceTree = "<group>"; };
 		A00000000000000000000010 /* LocationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		A00000000000000000000011 /* CustomizationFeatureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomizationFeatureView.swift; sourceTree = "<group>"; };
+		A00000000000000000000012 /* BrightCoreView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrightCoreView.swift; sourceTree = "<group>"; };
+		A00000000000000000000013 /* EmojiPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiPickerView.swift; sourceTree = "<group>"; };
 		B00000000000000000000001 /* IslandifyWidgetBundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyWidgetBundle.swift; sourceTree = "<group>"; };
 		B00000000000000000000002 /* IslandifyLiveActivityWidget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IslandifyLiveActivityWidget.swift; sourceTree = "<group>"; };
 		C00000000000000000000001 /* LocalStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
@@ -130,6 +135,7 @@
 		E00000000000000000000009 /* InfoPlist.strings (Korean) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E00000000000000000000010 /* Widget InfoPlist.strings (English) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E00000000000000000000011 /* Widget InfoPlist.strings (Korean) */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F20000000000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXVariantGroup section */
@@ -251,6 +257,8 @@
 				A00000000000000000000001 /* IslandifyAppModel.swift */,
 				A00000000000000000000002 /* IslandifyApp.swift */,
 				A00000000000000000000003 /* ContentView.swift */,
+				A00000000000000000000012 /* BrightCoreView.swift */,
+				A00000000000000000000013 /* EmojiPickerView.swift */,
 				A00000000000000000000005 /* TimerFeatureView.swift */,
 				A00000000000000000000006 /* TravelFeatureView.swift */,
 				A00000000000000000000007 /* RelationshipFeatureView.swift */,
@@ -263,6 +271,7 @@
 		100000000000000000000008 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F20000000000000000000001 /* Assets.xcassets */,
 				E00000000000000000000004 /* Info.plist */,
 				E00000000000000000000005 /* Islandify.entitlements */,
 				F10000000000000000000001 /* InfoPlist.strings */,
@@ -411,6 +420,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600000000000000000000046 /* Assets.xcassets in Resources */,
 				600000000000000000000041 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -440,6 +450,8 @@
 				600000000000000000000001 /* IslandifyAppModel.swift in Sources */,
 				600000000000000000000002 /* IslandifyApp.swift in Sources */,
 				600000000000000000000003 /* ContentView.swift in Sources */,
+				600000000000000000000043 /* BrightCoreView.swift in Sources */,
+				600000000000000000000045 /* EmojiPickerView.swift in Sources */,
 				E28460213034938E00539E1E /* LocalStore.swift in Sources */,
 				E28460223034938E00539E1E /* PreviewData.swift in Sources */,
 				600000000000000000000009 /* ActivityPresentation.swift in Sources */,

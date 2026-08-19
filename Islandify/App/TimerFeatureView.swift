@@ -11,8 +11,16 @@ struct TimerFeatureView: View {
     @State private var autoEnd = true
 
     var body: some View {
-        ScrollView {
+        let copy = IslandifyCopy.current
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
+                IslandifyPageHeader(
+                    eyebrow: copy.timer,
+                    title: model.activeTimer?.configuration.name ?? copy.timerExampleName,
+                    subtitle: copy.timerFormDescription,
+                    symbolName: "timer"
+                )
+
                 if let activeTimer = model.activeTimer {
                     activeTimerCard(activeTimer)
                 } else {
@@ -20,167 +28,183 @@ struct TimerFeatureView: View {
                 }
 
                 if let message = model.message {
-                    Label(message, systemImage: "info.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityLabel(message)
+                    IslandifyMessageBanner(message: message)
                 }
             }
-            .padding()
-            .frame(maxWidth: 600)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 32)
+            .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
-        .onAppear { model.refresh() }
+        .islandifyBrightPageBackground()
+        .tint(IslandifyBrightPalette.lavender)
+        .onAppear {
+            model.refresh()
+            loadSavedIcon()
+        }
         .onChange(of: model.activeTimer?.phase) { _ in model.refresh() }
+        .accessibilityIdentifier("timer-feature")
     }
 
     private var timerForm: some View {
         let copy = IslandifyCopy.current
-        return VStack(alignment: .leading, spacing: 16) {
-            Label(copy.timer, systemImage: "timer")
-                .font(.title2.weight(.semibold))
+        return IslandifyBrightCard(padding: 20, cornerRadius: 30) {
+            VStack(alignment: .leading, spacing: 15) {
+                Text(copy.timer)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(IslandifyBrightPalette.text)
 
-            Text(copy.timerFormDescription)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                TextField(copy.name, text: $name)
+                    .textFieldStyle(.plain)
+                    .islandifyInputStyle()
+                    .accessibilityLabel(copy.timerName)
 
-            TextField(copy.name, text: $name)
-                .textFieldStyle(.roundedBorder)
-                .accessibilityLabel(copy.timerName)
-
-            HStack {
-                Label(copy.duration, systemImage: "clock")
-                Spacer()
-                Stepper(value: $durationMinutes, in: 1...480) {
-                    Text(copy.durationMinutes(durationMinutes))
-                        .monospacedDigit()
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(copy.duration)
+                            .font(.subheadline.weight(.medium))
+                        Text(copy.durationMinutes(durationMinutes))
+                            .font(.title3.monospacedDigit().weight(.semibold))
+                            .foregroundStyle(IslandifyBrightPalette.lavender)
+                    }
+                    .foregroundStyle(IslandifyBrightPalette.text)
+                    Spacer()
+                    Stepper("", value: $durationMinutes, in: 1...480)
+                        .labelsHidden()
+                        .tint(IslandifyBrightPalette.lavender)
+                        .accessibilityLabel(copy.durationAccessibility(minutes: durationMinutes))
                 }
-                .accessibilityLabel(copy.durationAccessibility(minutes: durationMinutes))
-            }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(IslandifyBrightPalette.surfaceSoft, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-            HStack {
-                Label(copy.icon, systemImage: "face.smiling")
-                Spacer()
-                TextField("🔥", text: $iconText)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 72)
-                    .textFieldStyle(.roundedBorder)
+                IslandifyEmojiPickerField(selection: $iconText, title: copy.icon, placeholder: "🔥")
                     .accessibilityLabel(copy.timerEmoji)
-            }
 
-            Picker(copy.theme, selection: $theme) {
-                ForEach(IslandifyTheme.allCases, id: \.self) { theme in
-                    Text(copy.themeName(theme)).tag(theme)
+                IslandifyPickerRow(
+                    title: copy.theme,
+                    selection: $theme,
+                    options: IslandifyTheme.allCases.map { IslandifyPickerOption(value: $0, title: copy.themeName($0)) }
+                )
+                IslandifyPickerRow(
+                    title: copy.alertSound,
+                    selection: $alertSound,
+                    options: TimerAlertSound.allCases.map { IslandifyPickerOption(value: $0, title: copy.alertSoundName($0.rawValue)) }
+                )
+                IslandifyPickerRow(
+                    title: copy.progress,
+                    selection: $progressStyle,
+                    options: ProgressStyle.allCases.map { IslandifyPickerOption(value: $0, title: copy.progressStyleName($0)) }
+                )
+
+                Toggle(copy.endLiveActivityWhenComplete, isOn: $autoEnd)
+                    .font(.subheadline.weight(.medium))
+                    .tint(IslandifyBrightPalette.lavender)
+
+                IslandifyGradientButton(title: copy.startTimer) {
+                    Task {
+                        await model.startTimer(
+                            name: name,
+                            durationMinutes: durationMinutes,
+                            iconText: iconText,
+                            theme: theme,
+                            alertSound: alertSound,
+                            progressStyle: progressStyle,
+                            autoEnd: autoEnd
+                        )
+                    }
                 }
+                .accessibilityHint(copy.startTimerHint)
             }
-
-            Picker(copy.alertSound, selection: $alertSound) {
-                ForEach(TimerAlertSound.allCases, id: \.self) { sound in
-                    Text(copy.alertSoundName(sound.rawValue)).tag(sound)
-                }
-            }
-
-            Picker(copy.progress, selection: $progressStyle) {
-                ForEach(ProgressStyle.allCases, id: \.self) { style in
-                    Text(copy.progressStyleName(style)).tag(style)
-                }
-            }
-
-            Toggle(copy.endLiveActivityWhenComplete, isOn: $autoEnd)
-
-            Button {
-                Task {
-                    await model.startTimer(
-                        name: name,
-                        durationMinutes: durationMinutes,
-                        iconText: iconText,
-                        theme: theme,
-                        alertSound: alertSound,
-                        progressStyle: progressStyle,
-                        autoEnd: autoEnd
-                    )
-                }
-            } label: {
-                Label(copy.startTimer, systemImage: "play.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .accessibilityHint(copy.startTimerHint)
         }
-        .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    private func loadSavedIcon() {
+        let saved = model.composition(for: .timer)
+        if saved.icon.kind == .emoji {
+            iconText = saved.icon.value
+        }
     }
 
     private func activeTimerCard(_ state: TimerState) -> some View {
         let copy = IslandifyCopy.current
         let snapshot = TimerEngine.snapshot(for: state, at: model.now)
+        let actionTitle: String? = state.phase == .active ? copy.pause : state.phase == .paused ? copy.resume : nil
         return VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                Label(state.configuration.name, systemImage: state.configuration.icon.kind == .system ? state.configuration.icon.value : "face.smiling")
-                    .font(.title2.weight(.semibold))
-                    .lineLimit(1)
+            HStack(spacing: 10) {
+                IslandifyAppIconView(icon: state.configuration.presentation.icon)
+                    .font(.title3)
+                    .frame(width: 38, height: 38)
+                    .background(IslandifyBrightPalette.lavender.opacity(0.12), in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(state.configuration.name)
+                        .font(.headline.weight(.semibold))
+                    Text(copy.phaseLabel(state.phase))
+                        .font(.caption)
+                        .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                }
                 Spacer()
                 Text(copy.phaseLabel(state.phase))
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(IslandifyBrightPalette.lavender)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(IslandifyBrightPalette.lavender.opacity(0.11), in: Capsule())
             }
 
-            Text(IslandifyTimeFormatter.duration(snapshot.remaining))
-                .font(.system(size: 48, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
-                .accessibilityLabel(copy.timerRemaining(
-                    name: state.configuration.name,
-                    value: IslandifyTimeFormatter.duration(snapshot.remaining)
-                ))
+            IslandifyHeroCard(
+                eyebrow: copy.timer,
+                value: IslandifyTimeFormatter.duration(snapshot.remaining),
+                detail: copy.progressPercent(Int((snapshot.progress * 100).rounded())),
+                progress: snapshot.progress
+            )
+            .accessibilityLabel(copy.timerRemaining(name: state.configuration.name, value: IslandifyTimeFormatter.duration(snapshot.remaining)))
 
-            ProgressView(value: snapshot.progress)
-                .tint(Color(hex: state.configuration.theme.palette.accentHex))
-                .accessibilityValue(copy.progressPercent(Int(snapshot.progress * 100)))
-
-            HStack {
-                if state.phase == .active {
-                    Button(copy.pause) { Task { await model.pauseTimer() } }
+            IslandifyBrightCard(padding: 14, cornerRadius: 22) {
+                HStack(spacing: 10) {
+                    if let actionTitle {
+                        Button(actionTitle) {
+                            Task {
+                                if state.phase == .active { await model.pauseTimer() } else { await model.resumeTimer() }
+                            }
+                        }
                         .buttonStyle(.borderedProminent)
-                } else if state.phase == .paused {
-                    Button(copy.resume) { Task { await model.resumeTimer() } }
-                        .buttonStyle(.borderedProminent)
-                } else if state.phase == .completed {
-                    Text(state.configuration.presentation.completionMessage)
-                        .font(.headline)
-                }
+                        .tint(IslandifyBrightPalette.lavender)
+                    }
 
-                Button(copy.addMinute) { Task { await model.addMinute() } }
-                    .buttonStyle(.bordered)
-                    .disabled(state.phase == .completed || state.phase == .ended)
+                    Button(copy.addMinute) { Task { await model.addMinute() } }
+                        .buttonStyle(.bordered)
+                        .tint(IslandifyBrightPalette.lavender)
+                        .disabled(state.phase == .completed || state.phase == .ended)
 
-                Menu {
-                    Button(copy.reset, role: .destructive) { Task { await model.resetTimer() } }
-                    Button(copy.end, role: .destructive) { Task { await model.endTimer() } }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .accessibilityLabel(copy.moreTimerActions)
+                    Spacer(minLength: 0)
+                    Menu {
+                        Button(copy.reset, role: .destructive) { Task { await model.resetTimer() } }
+                        Button(copy.end, role: .destructive) { Task { await model.endTimer() } }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.body.weight(.bold))
+                            .foregroundStyle(IslandifyBrightPalette.secondaryText)
+                            .frame(width: 38, height: 38)
+                            .background(IslandifyBrightPalette.surfaceSoft, in: Circle())
+                    }
+                    .accessibilityLabel(copy.moreTimerActions)
                 }
+            }
+
+            if state.phase == .completed {
+                Text(state.configuration.presentation.completionMessage)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(IslandifyBrightPalette.lavender)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
-        .padding()
-        .background(Color(hex: state.configuration.theme.palette.backgroundHex), in: RoundedRectangle(cornerRadius: 20))
-        .foregroundStyle(Color(hex: state.configuration.theme.palette.foregroundHex))
+        .foregroundStyle(IslandifyBrightPalette.text)
     }
 }
 
-private extension Color {
-    init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var value: UInt64 = 0
-        Scanner(string: cleaned).scanHexInt64(&value)
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255
-        )
-    }
+#Preview {
+    TimerFeatureView()
+        .environmentObject(IslandifyAppModel())
 }
